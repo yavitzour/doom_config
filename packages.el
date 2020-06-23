@@ -51,3 +51,7 @@
 (package! highlight-symbol)
 
 (package! sql-indent)
+
+(package! yafolding)
+
+(package! goto-last-change)

@@ -9,6 +9,9 @@
 (setq user-full-name "Yoav Avitzour"
       user-mail-address "yavitzour@gmail.com")
 
+;; Move the cache dir out of .emacs.d
+(setq doom-cache-dir "~/.cache/emacs")
+
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
 ;;
@@ -125,7 +128,10 @@
         (if (region-active-p)
             (setq beg (region-beginning) end (region-end))
             (setq beg (line-beginning-position) end (line-end-position)))
-        (comment-or-uncomment-region beg end)))
+        (comment-or-uncomment-region beg end)
+        ;; (forward-line)
+        )
+    )
 
 ;; My bindings
 (map!
@@ -136,7 +142,7 @@
  "S-<f2>" #'previous-error)
 
 ;; Python
-(setq python-shell-interpreter-args "m IPython --simple-prompt -i")
+(setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
 
 (defun python-shell-send-current-statement ()
   "Send current statement to Python shell.
@@ -155,17 +161,24 @@ Taken from elpy-shell-send-current-statement"
          (python-shell-send-region (region-beginning) (region-end))
          ) (t (python-shell-send-current-statement))))
 
+(defun my-run-python ()
+  (interactive)
+  (run-python)
+  (pop-to-buffer "*Python*"))
+
 (map! :map python-mode-map
       "C-c C-h" #'python-eldoc-at-point
       "C-c C-f" #'python-shell-send-defun
-      [remap python-shell-send-region] #'python-shell-send-region-or-line)
+      [remap python-shell-send-region] #'python-shell-send-region-or-line
+      "C-c C-s" #'my-run-python)
 
+;;; Add matlab-like behavior to comint based modes (shell, python-shell)
 (map! :map comint-mode-map
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input)
 
-(map! :map prog-mode-map
-      "<C-return>" #'+fold/toggle)
+;; (map! :map prog-mode-map
+;;       "<C-return>" #'+fold/toggle)
 
 (use-package! iedit
   :bind (("C-;" . iedit-mode))
@@ -185,3 +198,12 @@ Taken from elpy-shell-send-current-statement"
   (eval-after-load "sql"
     '(load-library "sql-indent"))
   (add-hook! sql-mode #'sqlind-minor-mode))
+
+(use-package! yafolding
+  :config
+  (add-hook! prog-mode #'yafolding-mode)
+  )
+
+(use-package! goto-last-change
+  :bind
+  (("C-x -" . goto-last-change)))
