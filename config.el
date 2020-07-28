@@ -10,7 +10,7 @@
       user-mail-address "yavitzour@gmail.com")
 
 ;; Move the cache dir out of .emacs.d
-(setq doom-cache-dir "~/.cache/emacs")
+;; (setq doom-cache-dir "~/.cache/emacs")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -47,8 +47,9 @@
 (advice-add #'doom-modeline--font-height :override #'my-doom-modeline--font-height)
 
  ;; If you use `org' and don't want your org files in the default location below,
- ;; change `org-directory'. It must be set before org loads!
+ ;; change `org-dirqectory'. It must be set before org loads!
 (setq org-directory "~/org/")
+;; (setq org-directory "~/org-roam/")
 
  ;; This determines the style of line numbers in effect. If set to `nil', line
  ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -116,7 +117,6 @@
 
 (global-set-key (kbd "C-c C-f") 'copy-buffer-file-name-as-kill)
 
-
 ;; org
 (setq-default org-hide-emphasis-markers t)
 
@@ -180,6 +180,46 @@ Taken from elpy-shell-send-current-statement"
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
 
+(use-package tree-sitter :after python-mode)
+
+(after! tree-sitter
+  (require 'tree-sitter)
+  (require 'tree-sitter-langs)
+  (require 'tree-sitter-hl)
+  (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
+
+(use-package! lsp-python-ms
+  :demand)
+
+(after! lsp-python-ms
+  (set-lsp-priority! 'mspyls 1))
+
+;; lsp configs
+;; (after! lsp-mode
+;;   (setq lsp-eldoc-enable-hover nil
+;;         lsp-signature-auto-activate nil
+;;         ;; lsp-enable-on-type-formatting nil
+;;         lsp-enable-symbol-highlighting nil))
+;;         ;; lsp-enable-file-watchers nil))
+
+;; virtualenv
+;; (defadvice! +python-poetry-open-repl-a (orig-fn &rest args)
+;;   "Use the Python binary from the current virtual environment."
+;;   :around #'+python/open-repl
+;;   (if (getenv "VIRTUAL_ENV")
+;;       (let ((python-shell-interpreter (executable-find "ipython")))
+;;         (apply orig-fn args))
+;;     (apply orig-fn args)))
+
+
+;; not sure what this does:
+;; (after! python
+;;   (setq python-shell-completion-native-enable nil))
+
+;; or this:
+;; (set-popup-rule! "^\\*Python*" :ignore t)
+
+
 (use-package! iedit
   :bind (("C-;" . iedit-mode))
   :config
@@ -207,4 +247,7 @@ Taken from elpy-shell-send-current-statement"
 (use-package! goto-last-change
   :bind
   (("C-x -" . goto-last-change)))
+
+(after! highlight-indent-guides
+  (highlight-indent-guides-auto-set-faces))
 
