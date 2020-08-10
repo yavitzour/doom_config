@@ -68,3 +68,8 @@
    :repo "ubolonton/emacs-tree-sitter"
    :files ("langs/*.el" "langs/queries")))
 
+(package! winnow)
+
+(package! heaven-and-hell)
+
+(package! ripgrep)

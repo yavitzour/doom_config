@@ -26,13 +26,26 @@
 ;; (setq doom-font (font-spec :family "SourceCodePro" :size 14))
 (setq doom-font (font-spec :family "OfficeCodePro" :size 15))
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
-(setq-default line-spacing 2)
+;; (setq-default line-spacing 2)
 
  ;; There are two ways to load a theme. Both assume the theme is installed and
  ;; available. You can either set `doom-theme' or manually load a theme with the
  ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'leuven)
+
+(use-package! heaven-and-hell
+  :init
+  ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
+  (setq heaven-and-hell-themes
+        '((light . doom-one-light)
+          (dark . doom-one))) ;; Themes can be the list: (dark . (tsdh-dark wombat))
+  ;; Optionall, load themes without asking for confirmation.
+  (setq heaven-and-hell-load-theme-no-confirm t)
+
+  :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
+         ("<f6>" . heaven-and-hell-toggle-theme))
+  )
 
 ;; (use-package! doom-modeline
 ;;   :config
@@ -43,13 +56,8 @@
 
 (defun my-doom-modeline--font-height ()
   "Calculate the actual char height of the mode-line."
-  (+ (frame-char-height) 2))
+  (+ (frame-char-height) 1))
 (advice-add #'doom-modeline--font-height :override #'my-doom-modeline--font-height)
-
- ;; If you use `org' and don't want your org files in the default location below,
- ;; change `org-dirqectory'. It must be set before org loads!
-(setq org-directory "~/org/")
-;; (setq org-directory "~/org-roam/")
 
  ;; This determines the style of line numbers in effect. If set to `nil', line
  ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -118,20 +126,37 @@
 (global-set-key (kbd "C-c C-f") 'copy-buffer-file-name-as-kill)
 
 ;; org
-(setq-default org-hide-emphasis-markers t)
+(setq org-directory "~/.org"                      ; let's put files here
+      org-use-property-inheritance t              ; it's convenient to have properties inherited
+      org-log-done 'time                          ; having the time a item is done sounds convininet
+      org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
+      org-export-in-background t                  ; run export processes in external emacs process
+      org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
+      org-hide-emphasis-markers t)
+
+;; have list bullets change with depth
+(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 
 ;; comments
 (defun comment-or-uncomment-region-or-line ()
-    "Comments or uncomments the region or the current line if there's no active region."
-    (interactive)
-    (let (beg end)
-        (if (region-active-p)
-            (setq beg (region-beginning) end (region-end))
-            (setq beg (line-beginning-position) end (line-end-position)))
-        (comment-or-uncomment-region beg end)
-        ;; (forward-line)
-        )
+  "Comments or uncomments the region or the current line if there's no active region."
+  (interactive)
+  (let (beg end)
+    (if (region-active-p)
+        (setq beg (region-beginning) end (region-end))
+      (setq beg (line-beginning-position) end (line-end-position)))
+    (comment-or-uncomment-region beg end)
+    ;; (forward-line)
     )
+  )
+
+;; backword-kill-word if no region active
+(defun obar/kill-region-or-backward-word ()
+  "Kill region if active, else backword-kill-word"
+  (interactive)
+  (if (region-active-p)
+      (kill-region (region-beginning) (region-end))
+    (backward-kill-word 1)))
 
 ;; My bindings
 (map!
@@ -139,7 +164,8 @@
  "C-x F" #'find-file-at-point
  "C-x 4 F" #'ffap-other-window
  "<f2>" #'next-error
- "S-<f2>" #'previous-error)
+ "S-<f2>" #'previous-error
+ "C-w" #'obar/kill-region-or-backward-word)
 
 ;; Python
 (setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
@@ -251,3 +277,62 @@ Taken from elpy-shell-send-current-statement"
 (after! highlight-indent-guides
   (highlight-indent-guides-auto-set-faces))
 
+(use-package! winnow
+  :config
+  (add-hook! occur-mode #'winnow-mode)
+  )
+
+(use-package! ripgrep)
+
+;; Treemacs config
+(after! treemacs
+  (defvar treemacs-file-ignore-extensions '()
+    "File extension which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-globs '()
+    "Globs which will are transformed to `treemacs-file-ignore-regexps' which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-regexps '()
+    "RegExps to be tested to ignore files, generated from `treeemacs-file-ignore-globs'")
+  (defun treemacs-file-ignore-generate-regexps ()
+    "Generate `treemacs-file-ignore-regexps' from `treemacs-file-ignore-globs'"
+    (setq treemacs-file-ignore-regexps (mapcar 'dired-glob-regexp treemacs-file-ignore-globs)))
+  (if (equal treemacs-file-ignore-globs '()) nil (treemacs-file-ignore-generate-regexps))
+  (defun treemacs-ignore-filter (file full-path)
+    "Ignore files specified by `treemacs-file-ignore-extensions', and `treemacs-file-ignore-regexps'"
+    (or (member (file-name-extension file) treemacs-file-ignore-extensions)
+        (let ((ignore-file nil))
+          (dolist (regexp treemacs-file-ignore-regexps ignore-file)
+            (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
+  (add-to-list 'treemacs-ignored-file-predicates #'treemacs-ignore-filter))
+
+(setq treemacs-file-ignore-extensions '(;; LaTeX
+                                        "aux"
+                                        "ptc"
+                                        "fdb_latexmk"
+                                        "fls"
+                                        "synctex.gz"
+                                        "toc"
+                                        ;; LaTeX - glossary
+                                        "glg"
+                                        "glo"
+                                        "gls"
+                                        "glsdefs"
+                                        "ist"
+                                        "acn"
+                                        "acr"
+                                        "alg"
+                                        ;; LaTeX - pgfplots
+                                        "mw"
+                                        ;; LaTeX - pdfx
+                                        "pdfa.xmpi"
+                                        ;; Python
+                                        "pyc"
+                                        "ipynb"
+                                        ))
+(setq treemacs-file-ignore-globs '(;; LaTeX
+                                   "*/_minted-*"
+                                   ;; AucTeX
+                                   "*/.auctex-auto"
+                                   "*/_region_.log"
+                                   "*/_region_.tex"
+                                   ;; Python
+                                   "*/__pycache__/*"))
