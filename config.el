@@ -100,7 +100,9 @@
 
 (use-package! windmove
   :config
-  (windmove-default-keybindings))
+  (windmove-default-keybindings)
+  (windmove-swap-states-default-keybindings)
+  )
 
 ;;
 ;; Copy the buffer file name into the kill ring
@@ -126,7 +128,7 @@
 (global-set-key (kbd "C-c C-f") 'copy-buffer-file-name-as-kill)
 
 ;; org
-(setq org-directory "~/.org"                      ; let's put files here
+(setq org-directory "~/org/"                      ; let's put files here
       org-use-property-inheritance t              ; it's convenient to have properties inherited
       org-log-done 'time                          ; having the time a item is done sounds convininet
       org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
@@ -134,8 +136,49 @@
       org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
       org-hide-emphasis-markers t)
 
+(after! org
+  (setq org-tags-column -77))
+;; org-agenda
+(setq org-agenda-skip-deadline-if-done t
+      org-agenda-skip-scheduled-if-done t
+      org-agenda-compact-blocks t)
+
+(setq org-agenda-sorting-strategy
+      (quote
+       ((agenda priority-down alpha-up)
+        (todo priority-down alpha-up)
+        (tags priority-down alpha-up))))
+
+
+;; agenda display format
+(setq org-agenda-prefix-format
+      (quote
+       ((agenda . "%s %?-12t %e ")
+        (timeline . "  %s")
+        (todo . " %i %e ")
+        (tags . " %i %e ")
+        (search . " %i %e "))))
+
+;; Place tags at the right hand side of the window
+(add-hook 'org-finalize-agenda-hook 'place-agenda-tags)
+(defun place-agenda-tags ()
+  "Put the agenda tags by the right border of the agenda window."
+  (setq org-agenda-tags-column (- 4 (window-width)))
+  (org-agenda-align-tags))
+
+(setq org-agenda-window-setup 'reorganize-frame)
+
 ;; have list bullets change with depth
 (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
+
+
+;; org-crypt
+(org-crypt-use-before-save-magic)
+(setq org-tags-exclude-from-inheritance (quote ("crypt")))
+(setq org-crypt-key nil)
+;; Use the following on buffers that use org-crypt:
+;; # -*- buffer-auto-save-file-name: nil; -*-
+
 
 ;; comments
 (defun comment-or-uncomment-region-or-line ()
@@ -206,19 +249,24 @@ Taken from elpy-shell-send-current-statement"
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
 
-(use-package tree-sitter :after python-mode)
+;; (use-package! tree-sitter :after python-mode)
 
-(after! tree-sitter
-  (require 'tree-sitter)
-  (require 'tree-sitter-langs)
-  (require 'tree-sitter-hl)
-  (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
+;; (after! tree-sitter
+;;   (require 'tree-sitter)
+;;   (require 'tree-sitter-langs)
+;;   (require 'tree-sitter-hl)
+;;   (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
 
-(use-package! lsp-python-ms
-  :demand)
+;; (use-package! lsp-python-ms
+;;   :demand)
 
-(after! lsp-python-ms
-  (set-lsp-priority! 'mspyls 1))
+;; (after! lsp-python-ms
+;;   (set-lsp-priority! 'mspyls 1))
+
+(use-package! lsp-pyright
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
 
 ;; lsp configs
 ;; (after! lsp-mode
@@ -270,9 +318,12 @@ Taken from elpy-shell-send-current-statement"
   (add-hook! prog-mode #'yafolding-mode)
   )
 
-(use-package! goto-last-change
-  :bind
-  (("C-x -" . goto-last-change)))
+(use-package! goto-chg
+  :config
+  (map!
+   "C-x -" #'goto-last-change
+   "C-x _" #'goto-last-change-reverse)
+  )
 
 (after! highlight-indent-guides
   (highlight-indent-guides-auto-set-faces))
@@ -283,6 +334,11 @@ Taken from elpy-shell-send-current-statement"
   )
 
 (use-package! ripgrep)
+
+(use-package! projectile
+  :config
+  (add-to-list 'projectile-globally-ignored-directories "blade_env")
+  (add-to-list 'projectile-globally-ignored-file-suffixes ".ipynb"))
 
 ;; Treemacs config
 (after! treemacs
@@ -336,3 +392,11 @@ Taken from elpy-shell-send-current-statement"
                                    "*/_region_.tex"
                                    ;; Python
                                    "*/__pycache__/*"))
+
+
+;; Maximize by default
+(add-hook 'window-setup-hook 'toggle-frame-maximized t)
+
+;; autorevert
+(setq global-auto-revert-mode t
+      global-auto-revert-non-file-buffers t)

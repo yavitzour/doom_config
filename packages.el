@@ -54,9 +54,14 @@
 
 (package! yafolding)
 
-(package! goto-last-change)
+(package! goto-chg)
 
-(package! lsp-python-ms)
+;; (package! lsp-python-ms)
+
+(package! lsp-pyright :recipe
+    (:host github
+     :repo "emacs-lsp/lsp-pyright"
+     ))
 
 (package! tree-sitter :recipe
   (:host github
