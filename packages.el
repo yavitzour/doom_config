@@ -78,3 +78,11 @@
 (package! heaven-and-hell)
 
 (package! ripgrep)
+
+(package! modus-operandi-theme)
+
+(package! modus-vivendi-theme)
+
+(package! exec-path-from-shell)
+
+;; (package! pyvenv)

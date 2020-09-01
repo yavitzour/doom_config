@@ -400,3 +400,10 @@ Taken from elpy-shell-send-current-statement"
 ;; autorevert
 (setq global-auto-revert-mode t
       global-auto-revert-non-file-buffers t)
+
+;; exec path from shell
+(use-package! exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize)))
+
