@@ -33,13 +33,19 @@
  ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'leuven)
+;; (setq doom-theme 'modus-operandi)
 
 (use-package! heaven-and-hell
   :init
   ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
   (setq heaven-and-hell-themes
         '((light . doom-one-light)
-          (dark . doom-one))) ;; Themes can be the list: (dark . (tsdh-dark wombat))
+          (dark . doom-one))
+        ;; '((light . modus-operandi)
+        ;;   (dark . doom-light))
+        ;; '((light . modus-one-light)
+        ;;   (dark . modus-vivendi))
+        ) ;; Themes can be the list: (dark . (tsdh-dark wombat))
   ;; Optionall, load themes without asking for confirmation.
   (setq heaven-and-hell-load-theme-no-confirm t)
 
@@ -47,17 +53,33 @@
          ("<f6>" . heaven-and-hell-toggle-theme))
   )
 
-;; (use-package! doom-modeline
-;;   :config
-;;   (setq doom-modeline-height 10)
-;;   :custom-face
-;;   (mode-line ((t (:height 1.0))))
-;;   )
+;; modus themes configuration
+(use-package! modus-operandi-theme
+  :init
+  (setq modus-operandi-theme-org-blocks 'rainbow
+        modus-operandi-theme-rainbow-headings t
+        ;; modus-operandi-theme-section-headings t
+        modus-operandi-theme-scale-headings t
+        modus-operandi-theme-mode-line '3d
+        )
+  )
+(use-package! modus-vivendi-theme
+  :init
+  (setq modus-vivendi-theme-org-blocks 'rainbow
+        modus-vivendi-theme-rainbow-headings t
+        ;; modus-vivendi-theme-section-headings t
+        modus-vivendi-theme-scale-headings t
+        modus-vivendi-theme-mode-line '3d
+        )
+  )
 
-(defun my-doom-modeline--font-height ()
-  "Calculate the actual char height of the mode-line."
-  (+ (frame-char-height) 1))
-(advice-add #'doom-modeline--font-height :override #'my-doom-modeline--font-height)
+(use-package! doom-modeline
+  :init
+  (setq doom-modeline-height 10)
+  :custom-face
+  (mode-line ((t (:height 0.97))))
+  (mode-line-inactive ((t (:height 0.97)))))
+
 
  ;; This determines the style of line numbers in effect. If set to `nil', line
  ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -246,6 +268,19 @@ Taken from elpy-shell-send-current-statement"
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input)
 
+;; (use-package! pyvenv
+;;   :config
+;;   (pyvenv-mode t)
+
+;;   ;; Set correct Python interpreter
+;;   (setq pyvenv-post-activate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+;;   (setq pyvenv-post-deactivate-hooks
+;;         (list (lambda ()
+;;                 (setq python-shell-interpreter "python")))))
+
+
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
 
@@ -257,16 +292,11 @@ Taken from elpy-shell-send-current-statement"
 ;;   (require 'tree-sitter-hl)
 ;;   (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
 
-;; (use-package! lsp-python-ms
-;;   :demand)
-
-;; (after! lsp-python-ms
-;;   (set-lsp-priority! 'mspyls 1))
-
-(use-package! lsp-pyright
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
+;; pyright - requires new nodejs - next ubuntu?
+;; (use-package! lsp-pyright
+;;   :hook (python-mode . (lambda ()
+;;                           (require 'lsp-pyright)
+;;                           (lsp))))  ; or lsp-deferred
 
 ;; lsp configs
 ;; (after! lsp-mode
