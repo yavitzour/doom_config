@@ -47,7 +47,7 @@
   ;; (setq heaven-and-hell-theme-type 'light) ;; Omit to use light by default
   (setq heaven-and-hell-themes
         '((light . doom-one-light)
-          (dark . doom-vivendi))
+          (dark . modus-vivendi))
         ;; '((light . modus-operandi)
         ;;   (dark . doom-light))
         ;; '((light . modus-one-light)
