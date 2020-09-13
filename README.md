@@ -1,1 +1,3 @@
-# doom_config
+# doom configuration
+
+configuration files for doom

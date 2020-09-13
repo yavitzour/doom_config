@@ -31,16 +31,23 @@
  ;; There are two ways to load a theme. Both assume the theme is installed and
  ;; available. You can either set `doom-theme' or manually load a theme with the
  ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one-light)
 ;; (setq doom-theme 'leuven)
 ;; (setq doom-theme 'modus-operandi)
+;; (setq doom-theme 'solo-jazz)
+(when (display-graphic-p) (setq doom-theme 'doom-one-light))
+
+;; dark themes:
+;; doom-one
+;; doom-dark+
+;; doom-acario-dark
+;; modus-vivendi
 
 (use-package! heaven-and-hell
   :init
-  ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
+  ;; (setq heaven-and-hell-theme-type 'light) ;; Omit to use light by default
   (setq heaven-and-hell-themes
         '((light . doom-one-light)
-          (dark . doom-one))
+          (dark . doom-vivendi))
         ;; '((light . modus-operandi)
         ;;   (dark . doom-light))
         ;; '((light . modus-one-light)
@@ -52,6 +59,12 @@
   :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
          ("<f6>" . heaven-and-hell-toggle-theme))
   )
+
+(setq-default tab-width 4
+              tab-always-indent 'complete
+              uniquify-buffer-name-style 'forward
+              window-combination-resize t)
+
 
 ;; modus themes configuration
 (use-package! modus-operandi-theme
@@ -359,8 +372,8 @@ Taken from elpy-shell-send-current-statement"
   (highlight-indent-guides-auto-set-faces))
 
 (use-package! winnow
-  :config
-  (add-hook! occur-mode #'winnow-mode)
+  :hook
+  (grep-mode . winnow-mode)
   )
 
 (use-package! ripgrep)
@@ -437,3 +450,16 @@ Taken from elpy-shell-send-current-statement"
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
+;; info colors
+(use-package! info-colors
+  :commands (info-colors-fontify-node))
+
+(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+
+(add-hook 'Info-mode-hook #'mixed-pitch-mode)
+
+(use-package! vlf-setup
+  :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
+
+;; vterm
+(setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")

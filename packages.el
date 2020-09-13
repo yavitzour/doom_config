@@ -80,4 +80,13 @@
 
 (package! exec-path-from-shell)
 
+(package! info-colors)
+
+(package! vlf)
+
+(package! systemd)
 ;; (package! pyvenv)
+
+(package! solo-jazz-theme :recipe
+  (:host github
+   :repo "cstby/solo-jazz-emacs-theme"))
