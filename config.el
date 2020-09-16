@@ -463,3 +463,7 @@ Taken from elpy-shell-send-current-statement"
 
 ;; vterm
 (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=no")
+
+(map! "<f5>" #'+vterm/toggle
+      :map vterm-mode-map
+      "<f5>" #'+vterm/toggle)
