@@ -31,10 +31,15 @@
  ;; There are two ways to load a theme. Both assume the theme is installed and
  ;; available. You can either set `doom-theme' or manually load a theme with the
  ;; `load-theme' function. This is the default:
+
+(if (not (display-graphic-p))
+    (setq doom-theme 'doom-dark+)
+  (setq doom-theme 'doom-one-light))
+;; (when (display-graphic-p) (setq doom-theme 'doom-one-light))
+
 ;; (setq doom-theme 'leuven)
 ;; (setq doom-theme 'modus-operandi)
 ;; (setq doom-theme 'solo-jazz)
-(when (display-graphic-p) (setq doom-theme 'doom-one-light))
 
 ;; dark themes:
 ;; doom-one
@@ -44,7 +49,7 @@
 
 (use-package! heaven-and-hell
   :init
-  ;; (setq heaven-and-hell-theme-type 'light) ;; Omit to use light by default
+  ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
   (setq heaven-and-hell-themes
         '((light . doom-one-light)
           (dark . modus-vivendi))
@@ -68,6 +73,7 @@
 
 ;; modus themes configuration
 (use-package! modus-operandi-theme
+  :defer t
   :init
   (setq modus-operandi-theme-org-blocks 'rainbow
         modus-operandi-theme-rainbow-headings t
@@ -76,7 +82,9 @@
         modus-operandi-theme-mode-line '3d
         )
   )
+
 (use-package! modus-vivendi-theme
+  :defer t
   :init
   (setq modus-vivendi-theme-org-blocks 'rainbow
         modus-vivendi-theme-rainbow-headings t
@@ -88,7 +96,9 @@
 
 (use-package! doom-modeline
   :init
-  (setq doom-modeline-height 10)
+  (setq doom-modeline-height 10
+        doom-modeline-major-mode-icon t)
+  
   :custom-face
   (mode-line ((t (:height 0.97))))
   (mode-line-inactive ((t (:height 0.97)))))
@@ -116,10 +126,12 @@
  ;; You can also try 'gd' (or 'C-c g d') to jump to their definition and see how
  ;; they are implemented.
 
-(smartparens-global-strict-mode t)
-
-(add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
-
+(use-package! smartparens
+  :defer t
+  :config
+  (smartparens-global-strict-mode t)
+  (add-hook 'prog-mode-hook 'turn-on-smartparens-strict-mode)
+  )
 (after! smartparens
   (map! :map smartparens-mode-map
         "C-<right>" nil
@@ -137,6 +149,10 @@
   :config
   (windmove-default-keybindings)
   (windmove-swap-states-default-keybindings)
+  (add-hook! org-shiftup-final #'windmove-up)
+  (add-hook! org-shiftdown-final #'windmove-down)
+  (add-hook! org-shiftleft-final #'windmove-left)
+  (add-hook! org-shiftright-final #'windmove-right)
   )
 
 ;;
@@ -144,7 +160,7 @@
 ;;
 (defun copy-buffer-file-name-as-kill (choice)
   "Copy the buffer-file-name to the kill-ring"
-  (interactive "cCopy Buffer Name (F) Full, (D) Directory, (N) Name")
+  (interactive "cCopy Buffer Name (f) Full, (d) Directory, (n) Name")
   (let ((new-kill-string)
         (name (if (eq major-mode 'dired-mode)
                   (dired-get-filename)
@@ -162,60 +178,7 @@
 
 (global-set-key (kbd "C-c C-f") 'copy-buffer-file-name-as-kill)
 
-;; org
-(setq org-directory "~/org/"                      ; let's put files here
-      org-use-property-inheritance t              ; it's convenient to have properties inherited
-      org-log-done 'time                          ; having the time a item is done sounds convininet
-      org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
-      org-export-in-background t                  ; run export processes in external emacs process
-      org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
-      org-hide-emphasis-markers t)
-
-(after! org
-  (setq org-tags-column -77))
-;; org-agenda
-(setq org-agenda-skip-deadline-if-done t
-      org-agenda-skip-scheduled-if-done t
-      org-agenda-compact-blocks t)
-
-(setq org-agenda-sorting-strategy
-      (quote
-       ((agenda priority-down alpha-up)
-        (todo priority-down alpha-up)
-        (tags priority-down alpha-up))))
-
-
-;; agenda display format
-(setq org-agenda-prefix-format
-      (quote
-       ((agenda . "%s %?-12t %e ")
-        (timeline . "  %s")
-        (todo . " %i %e ")
-        (tags . " %i %e ")
-        (search . " %i %e "))))
-
-;; Place tags at the right hand side of the window
-(add-hook 'org-finalize-agenda-hook 'place-agenda-tags)
-(defun place-agenda-tags ()
-  "Put the agenda tags by the right border of the agenda window."
-  (setq org-agenda-tags-column (- 4 (window-width)))
-  (org-agenda-align-tags))
-
-(setq org-agenda-window-setup 'reorganize-frame)
-
-;; have list bullets change with depth
-(setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
-
-
-;; org-crypt
-(org-crypt-use-before-save-magic)
-(setq org-tags-exclude-from-inheritance (quote ("crypt")))
-(setq org-crypt-key nil)
-;; Use the following on buffers that use org-crypt:
-;; # -*- buffer-auto-save-file-name: nil; -*-
-
-
-;; comments
+;; comments - https://stackoverflow.com/a/9697222/14042240
 (defun comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
   (interactive)
@@ -247,6 +210,9 @@
 
 ;; Python
 (setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
+
+(after! realgud-pdb
+  (setq realgud:pdb-command-name "python3 -m pdb"))
 
 (defun python-shell-send-current-statement ()
   "Send current statement to Python shell.
@@ -351,10 +317,10 @@ Taken from elpy-shell-send-current-statement"
    "M-<f3>" #'highlight-symbol-query-replace))
 
 (use-package! sql-indent
+  :defer t
   :config
-  (eval-after-load "sql"
-    '(load-library "sql-indent"))
   (add-hook! sql-mode #'sqlind-minor-mode))
+(after! sql (load-library "sql-indent"))
 
 (use-package! yafolding
   :config
@@ -368,6 +334,7 @@ Taken from elpy-shell-send-current-statement"
    "C-x _" #'goto-last-change-reverse)
   )
 
+(setq highlight-indent-guides-suppress-auto-error t)
 (after! highlight-indent-guides
   (highlight-indent-guides-auto-set-faces))
 
@@ -375,8 +342,6 @@ Taken from elpy-shell-send-current-statement"
   :hook
   (grep-mode . winnow-mode)
   )
-
-(use-package! ripgrep)
 
 (use-package! projectile
   :config
@@ -467,3 +432,8 @@ Taken from elpy-shell-send-current-statement"
 (map! "<f5>" #'+vterm/toggle
       :map vterm-mode-map
       "<f5>" #'+vterm/toggle)
+
+;; Useful Functions
+;; C-u M-x what-cursor-position ;; (C-u C-x =) find out everything about the state under the cursor (face name, font, etc)
+
+(load! "+org")
