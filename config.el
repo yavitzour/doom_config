@@ -24,7 +24,8 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 14))
 ;; (setq doom-font (font-spec :family "SourceCodePro" :size 14))
-(setq doom-font (font-spec :family "OfficeCodePro" :size 15))
+(setq doom-font (font-spec :family "OfficeCodePro" :size 15)
+      doom-variable-pitch-font (font-spec :family "ETBembo" :size 15))
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
 ;; (setq-default line-spacing 2)
 
@@ -35,7 +36,15 @@
 (if (not (display-graphic-p))
     (setq doom-theme 'doom-dark+)
   (setq doom-theme 'doom-one-light))
+
 ;; (when (display-graphic-p) (setq doom-theme 'doom-one-light))
+
+(use-package! mixed-pitch
+  :defer
+  :config
+  (setq mixed-pitch-variable-pitch-cursor nil)
+  :hook
+  (text-mode . mixed-pitch-mode))
 
 ;; (setq doom-theme 'leuven)
 ;; (setq doom-theme 'modus-operandi)
@@ -70,6 +79,11 @@
               uniquify-buffer-name-style 'forward
               window-combination-resize t)
 
+(setq kill-whole-line t)
+
+;; Backup
+(setq auto-save-default t
+      make-backup-files t)
 
 ;; modus themes configuration
 (use-package! modus-operandi-theme

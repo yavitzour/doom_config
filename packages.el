@@ -92,3 +92,5 @@
            :repo "cstby/solo-jazz-emacs-theme"))
 
 (package! org-super-agenda)
+
+(package! mixed-pitch)

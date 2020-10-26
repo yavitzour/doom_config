@@ -110,9 +110,9 @@
                                    (todo   . " ")
                                    (tags   . " %i %-12:c")
                                    (search . " %i %-12:c"))
-        org-agenda-sorting-strategy '((agenda priority-down tag-up alpha-up)
-                                      (todo priority-down tag-up alpha-up)
-                                      (tags priority-down tag-up alpha-up)))
+        org-agenda-sorting-strategy '((agenda time-up priority-down todo-state-up tag-up alpha-up)
+                                      (todo priority-down todo-state-up tag-up alpha-up)
+                                      (tags priority-down todo-state-up tag-up alpha-up)))
 
 
   ;; Place tags at the right hand side of the window
