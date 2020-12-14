@@ -25,7 +25,8 @@
 ;; (setq doom-font (font-spec :family "monospace" :size 14))
 ;; (setq doom-font (font-spec :family "SourceCodePro" :size 14))
 (setq doom-font (font-spec :family "OfficeCodePro" :size 15)
-      doom-variable-pitch-font (font-spec :family "ETBembo" :size 15))
+      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 15)
+      doom-big-font (font-spec :family "OfficeCodePro" :size 20))
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
 ;; (setq-default line-spacing 2)
 
@@ -39,12 +40,13 @@
 
 ;; (when (display-graphic-p) (setq doom-theme 'doom-one-light))
 
-(use-package! mixed-pitch
-  :defer
-  :config
-  (setq mixed-pitch-variable-pitch-cursor nil)
-  :hook
-  (text-mode . mixed-pitch-mode))
+;; (use-package! mixed-pitch
+;;   :defer
+;;   :config
+;;   (setq mixed-pitch-variable-pitch-cursor nil)
+;;   :hook
+;;   (text-mode . mixed-pitch-mode))
+(setq mixed-pitch-set-height t)
 
 ;; (setq doom-theme 'leuven)
 ;; (setq doom-theme 'modus-operandi)
@@ -112,7 +114,7 @@
   :init
   (setq doom-modeline-height 10
         doom-modeline-major-mode-icon t)
-  
+
   :custom-face
   (mode-line ((t (:height 0.97))))
   (mode-line-inactive ((t (:height 0.97)))))
@@ -126,7 +128,7 @@
  ;; Here are some additional functions/macros that could help you configure Doom:
  ;;
  ;; - `load!' for loading external *.el files relative to this one
- ;; - `use-package' for configuring packages
+ ;; - `use-package!' for configuring packages
  ;; - `after!' for running code after a package has loaded
  ;; - `add-load-path!' for adding directories to the `load-path', relative to
  ;;   this file. Emacs searches the `load-path' when you load packages with
@@ -134,10 +136,10 @@
  ;; - `map!' for binding new keys
  ;;
  ;; To get information about any of these functions/macros, move the cursor over
- ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c g k').
+ ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
  ;; This will open documentation for it, including demos of how they are used.
  ;;
- ;; You can also try 'gd' (or 'C-c g d') to jump to their definition and see how
+ ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
  ;; they are implemented.
 
 (use-package! smartparens
@@ -246,6 +248,7 @@ Taken from elpy-shell-send-current-statement"
          ) (t (python-shell-send-current-statement))))
 
 (defun my-run-python ()
+  "Starts python shell buffer if one is not running and jumps to it"
   (interactive)
   (run-python)
   (pop-to-buffer "*Python*"))
@@ -261,18 +264,37 @@ Taken from elpy-shell-send-current-statement"
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input)
 
-;; (use-package! pyvenv
-;;   :config
-;;   (pyvenv-mode t)
+(use-package! pyvenv
+  :config
+  (pyvenv-mode 1)
 
-;;   ;; Set correct Python interpreter
-;;   (setq pyvenv-post-activate-hooks
-;;         (list (lambda ()
-;;                 (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
-;;   (setq pyvenv-post-deactivate-hooks
-;;         (list (lambda ()
-;;                 (setq python-shell-interpreter "python")))))
+  ;; ;; Set correct Python interpreter
+  ;; (setq pyvenv-post-activate-hooks
+  ;;       (list (lambda ()
+  ;;               (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+  ;; (setq pyvenv-post-deactivate-hooks
+  ;;       (list (lambda ()
+  ;;               (setq python-shell-interpreter "python"))))
+  )
 
+(defun pyvenv-autoload ()
+  (interactive)
+  "auto activate venv/env directory if exists"
+  (setq venv-patterns '("venv" "env"))
+  (dolist (venv venv-patterns)
+    (f-traverse-upwards (lambda (path)
+                          (let ((venv-path (f-expand venv path)))
+                            (when (f-exists? venv-path)
+                              (progn (message venv-path)
+                                     (pyvenv-activate venv-path))
+                              ))))
+    )
+  )
+
+
+(add-hook 'python-mode-hook 'pyvenv-autoload)
+
+(setq dap-python-debugger 'debugpy)
 
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
@@ -337,8 +359,8 @@ Taken from elpy-shell-send-current-statement"
 (after! sql (load-library "sql-indent"))
 
 (use-package! yafolding
-  :config
-  (add-hook! prog-mode #'yafolding-mode)
+  :hook
+  (prog-mode . yafolding-mode)
   )
 
 (use-package! goto-chg
@@ -447,7 +469,16 @@ Taken from elpy-shell-send-current-statement"
       :map vterm-mode-map
       "<f5>" #'+vterm/toggle)
 
+;; Cache gpg file password so you only need to set it once and not every time you save the file
+(setq epa-file-cache-passphrase-for-symmetric-encryption t)
+
 ;; Useful Functions
-;; C-u M-x what-cursor-position ;; (C-u C-x =) find out everything about the state under the cursor (face name, font, etc)
+;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)
 
 (load! "+org")
+
+
+;; Latex configuration
+(setq TeX-save-query nil)
+;; Enable yafolding for tex-mode
+(add-hook! cdlatex-mode #'yafolding-mode)
