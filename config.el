@@ -78,7 +78,7 @@
 
 (setq-default tab-width 4
               tab-always-indent 'complete
-              uniquify-buffer-name-style 'forward
+              ;; uniquify-buffer-name-style 'forward
               window-combination-resize t)
 
 (setq kill-whole-line t)
@@ -475,10 +475,25 @@ Taken from elpy-shell-send-current-statement"
 ;; Useful Functions
 ;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)
 
-(load! "+org")
-
 
 ;; Latex configuration
 (setq TeX-save-query nil)
 ;; Enable yafolding for tex-mode
 (add-hook! cdlatex-mode #'yafolding-mode)
+
+(use-package! easy-kill
+  :config
+  (global-set-key [remap kill-ring-save] #'easy-kill)
+  (global-set-key [remap mark-sexp] #'easy-mark))
+
+(after! ivy
+  (map!
+   :map ivy-minibuffer-map
+   ;; map TAB to ivy-partial-or-done. Two tabs restores the ivy-alt-done functionality
+  "TAB" #'ivy-partial-or-done))
+
+;; org mode configuration
+(load! "+org")
+
+;; show parentheses matches outside the visible window
+(load! "+show-paren")

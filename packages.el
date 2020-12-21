@@ -85,7 +85,6 @@
 (package! vlf)
 
 (package! systemd)
-;; (package! pyvenv)
 
 (package! solo-jazz-theme
   :recipe (:host github
@@ -94,3 +93,7 @@
 (package! org-super-agenda)
 
 (package! mixed-pitch)
+
+(package! easy-kill)
+
+(package! sunrise-commander :recipe (:host github :repo "sunrise-commander/sunrise-commander"))
