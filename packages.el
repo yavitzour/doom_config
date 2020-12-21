@@ -96,4 +96,7 @@
 
 (package! easy-kill)
 
+(package! peep-dired)
+
 (package! sunrise-commander :recipe (:host github :repo "sunrise-commander/sunrise-commander"))
+

@@ -492,6 +492,8 @@ Taken from elpy-shell-send-current-statement"
    ;; map TAB to ivy-partial-or-done. Two tabs restores the ivy-alt-done functionality
   "TAB" #'ivy-partial-or-done))
 
+(use-package! peep-dired)
+
 ;; org mode configuration
 (load! "+org")
 
