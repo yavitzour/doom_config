@@ -1,10 +1,22 @@
 ;;; +org.el -*- lexical-binding: t; -*-
 
 ;; org configuration - heavily influenced by https://www.labri.fr/perso/nrougier/GTD/index.html
+
+(setq org-directory "~/Dropbox/org/") ; let's put files here
+
+(use-package! org-appear
+  :init
+  (add-hook 'org-mode-hook 'org-appear-mode)
+  )
+
+(use-package! org-appear
+  :init
+  )
+
 (after! org
-  (setq org-directory "~/org/"                      ; let's put files here
-        org-use-property-inheritance t              ; it's convenient to have properties inherited
-        org-log-done 'time                          ; having the time a item is done sounds convininet
+  (setq org-use-property-inheritance t              ; it's convenient to have properties inherited
+        org-log-done 'time                          ; having the time an item is done sounds convininet
+        org-log-refile 'time                        ; having the time an item is refiled sounds convininet
         org-list-allow-alphabetical t               ; have a. A. a) A) list bullets
         org-export-in-background t                  ; run export processes in external emacs process
         org-catch-invisible-edits 'smart            ; try not to accidently do weird stuff in invisible regions
@@ -35,10 +47,10 @@
   ;;         ))
 
   (add-to-list 'org-capture-templates
-               '("i" "Inbox" entry  (file "inbox.org")
+               '("i" "Inbox" entry (file "inbox.org")
                  "* TODO %?\n/Entered on/ %U"))
   (add-to-list 'org-capture-templates
-               '("n" "Note" entry  (file "notes.org")
+               '("n" "Note" entry (file "notes.org")
                  "* Note (%a)\n/Entered on/ %U\n" "\n" "%?"))
 
   (setq org-refile-targets
@@ -76,8 +88,7 @@
   ;; Aaron Harris's solution for skip-by-tag (https://stackoverflow.com/a/33444799/14042240)
   (defun my/org-match-at-point-p (match)
     "Return non-nil if headline at point matches MATCH.
-     Here MATCH is a match string of the same format used by
-`org-tags-view'."
+     Here MATCH is a match string of the same format used by `org-tags-view'."
     (funcall (cdr (org-make-tags-matcher match))
              (org-get-todo-state)
              (org-get-tags-at)
@@ -97,15 +108,24 @@
                              (or (outline-next-heading) (point-max)))))
         (if (my/org-match-at-point-p match) nil next-headline))))
 
-  (setq org-agenda-skip-deadline-if-done t
-        org-agenda-skip-scheduled-if-done t
+  (setq org-agenda-block-separator nil
         org-agenda-compact-blocks t
-        org-agenda-window-setup 'reorganize-frame
         org-agenda-include-deadlines t
-        org-agenda-block-separator nil
-        org-agenda-start-day nil ;; i.e. today
+        org-agenda-show-all-dates nil
+        org-agenda-skip-deadline-if-done t
+        org-agenda-skip-deadline-if-done t
+        org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled
+        org-agenda-skip-scheduled-if-deadline-is-shown t
+        org-agenda-skip-scheduled-if-done t
+        org-agenda-skip-scheduled-if-done t
         org-agenda-span 1
+        org-agenda-start-day nil ;; i.e. today
         org-agenda-start-on-weekday nil
+        org-agenda-tags-todo-honor-ignore-options t
+        org-agenda-todo-ignore-deadlines 'far
+        org-agenda-todo-ignore-scheduled 'all
+        org-agenda-todo-list-sublevels t
+        org-agenda-window-setup 'reorganize-frame
         org-agenda-prefix-format '((agenda . " %i %-12:c%?-12t% s")
                                    (todo   . " ")
                                    (tags   . " %i %-12:c")
@@ -122,9 +142,15 @@
     (setq org-agenda-tags-column (- 4 (window-width)))
     (org-agenda-align-tags))
 
+  (defvar nox-org-agenda-file "")
   ;; org-agenda
   (setq org-agenda-custom-commands
-        '(("g" "Get Things Done (GTD)"
+        '(("n" "Agenda"
+           ((agenda "" ((org-agenda-files (list org-default-notes-file nox-org-agenda-file))
+                        (org-agenda-span 3)))
+            (+agenda-inbox nil ((org-agenda-files (list org-default-notes-file))))
+            (+agenda-tasks)))
+          ("g" "Get Things Done (GTD)"
            (
             ;; (agenda ""
             ;;         ((org-agenda-skip-function
@@ -158,34 +184,37 @@
            ((agenda "" ((org-agenda-overriding-header "")
                         (org-super-agenda-groups
                          '((:name "Today"
-                                  :time-grid t
-                                  :date today
-                                  :order 1)))))
+                            :time-grid t
+                            :date today
+                            :order 1)))))
             (alltodo "" ((org-agenda-overriding-header "")
                          (org-super-agenda-groups
                           '((:log t)
                             (:name "To refile"
-                                   :file-path "refile\\.org")
+                             :file-path "refile\\.org")
                             (:name "Next to do"
-                                   :todo "NEXT"
-                                   :order 1)
+                             :todo "NEXT"
+                             :order 1)
                             (:name "Important"
-                                   :priority "A"
-                                   :order 6)
+                             :priority "A"
+                             :order 6)
                             (:name "Today's tasks"
-                                   :file-path "journal/")
+                             :file-path "journal/")
                             (:name "Due Today"
-                                   :deadline today
-                                   :order 2)
+                             :deadline today
+                             :order 2)
                             (:name "Scheduled Soon"
-                                   :scheduled future
-                                   :order 8)
+                             :scheduled future
+                             :order 8)
                             (:name "Overdue"
-                                   :deadline past
-                                   :order 7)
+                             :deadline past
+                             :order 7)
                             (:name "Meetings"
-                                   :and (:todo "MEET" :scheduled future)
-                                   :order 10)
+                             :and (:todo "MEET" :scheduled future)
+                             :order 10)
                             (:discard (:not (:todo "TODO")))))))))))
 
-  (org-super-agenda-mode))
+  (org-super-agenda-mode)
+
+  (load! "+org-agenda-functions")
+  )

@@ -100,3 +100,8 @@
 
 (package! sunrise-commander :recipe (:host github :repo "sunrise-commander/sunrise-commander"))
 
+(package! org-jira)
+
+(package! org-appear :recipe
+          (:host github
+           :repo "awth13/org-appear"))

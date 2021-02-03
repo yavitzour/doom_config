@@ -10,7 +10,7 @@
       user-mail-address "yavitzour@gmail.com")
 
 ;; Move the cache dir out of .emacs.d
-;; (setq doom-cache-dir "~/.cache/emacs")
+(setq doom-cache-dir "~/.cache/emacs")
 
 ;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
 ;; are the three important ones:
@@ -30,9 +30,9 @@
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
 ;; (setq-default line-spacing 2)
 
- ;; There are two ways to load a theme. Both assume the theme is installed and
- ;; available. You can either set `doom-theme' or manually load a theme with the
- ;; `load-theme' function. This is the default:
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
 
 (if (not (display-graphic-p))
     (setq doom-theme 'doom-dark+)
@@ -72,8 +72,22 @@
   ;; Optionall, load themes without asking for confirmation.
   (setq heaven-and-hell-load-theme-no-confirm t)
 
+  (defvar my-themes '(doom-one-light doom-dark+ modus-operandi modus-vivendi leuven))
+  ;; Changing list to circular list
+  (nconc my-themes my-themes)
+  (defvar my-current-theme 'default)
+
+  (defun my/load-next-theme ()
+    (interactive)
+    (setq my-current-theme (pop my-themes))
+    (message "Changing theme to: %s" my-current-theme)
+    (heaven-and-hell-clean-load-themes my-current-theme)
+    )
+
   :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
-         ("<f6>" . heaven-and-hell-toggle-theme))
+         ("<f6>" . heaven-and-hell-toggle-theme)
+         ("<f7>" . my/load-next-theme)
+         )
   )
 
 (setq-default tab-width 4
@@ -120,8 +134,8 @@
   (mode-line-inactive ((t (:height 0.97)))))
 
 
- ;; This determines the style of line numbers in effect. If set to `nil', line
- ;; numbers are disabled. For relative line numbers, set this to `relative'.
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
 
