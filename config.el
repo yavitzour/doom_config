@@ -59,6 +59,7 @@
 ;; modus-vivendi
 
 (use-package! heaven-and-hell
+  :demand t
   :init
   ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
   (setq heaven-and-hell-themes
@@ -102,26 +103,21 @@
       make-backup-files t)
 
 ;; modus themes configuration
-(use-package! modus-operandi-theme
-  :defer t
+(use-package! modus-themes
   :init
-  (setq modus-operandi-theme-org-blocks 'rainbow
-        modus-operandi-theme-rainbow-headings t
-        ;; modus-operandi-theme-section-headings t
-        modus-operandi-theme-scale-headings t
-        modus-operandi-theme-mode-line '3d
+  (setq modus-themes-org-blocks 'rainbow
+        modus-themes-rainbow-headings t
+        ;; modus-themes-section-headings t
+        modus-themes-scale-headings t
+        modus-themes-mode-line '3d
+        modus-themes-completions 'opinionated
+        ;; modus-themes-bold-constructs t
+        ;; modus-themes-slanted-constructs t
+        ;; modus-themes-intense-hl-line t
         )
-  )
-
-(use-package! modus-vivendi-theme
-  :defer t
-  :init
-  (setq modus-vivendi-theme-org-blocks 'rainbow
-        modus-vivendi-theme-rainbow-headings t
-        ;; modus-vivendi-theme-section-headings t
-        modus-vivendi-theme-scale-headings t
-        modus-vivendi-theme-mode-line '3d
-        )
+  (modus-themes-load-themes)
+  ;; :bind
+  ;; (("<f5>" . modus-themes-toggle))
   )
 
 (use-package! doom-modeline
@@ -206,7 +202,7 @@
       (message "%s copied" new-kill-string)
       (kill-new new-kill-string))))
 
-(global-set-key (kbd "C-c C-f") 'copy-buffer-file-name-as-kill)
+(global-set-key (kbd "C-c C-b") 'copy-buffer-file-name-as-kill)
 
 ;; comments - https://stackoverflow.com/a/9697222/14042240
 (defun comment-or-uncomment-region-or-line ()
@@ -236,7 +232,10 @@
  "C-x 4 F" #'ffap-other-window
  "<f2>" #'next-error
  "S-<f2>" #'previous-error
- "C-w" #'obar/kill-region-or-backward-word)
+ "C-w" #'obar/kill-region-or-backward-word
+ "M-l" #'downcase-dwim
+ "M-u" #'upcase-dwim
+ )
 
 ;; Python
 (setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
@@ -308,6 +307,13 @@ Taken from elpy-shell-send-current-statement"
 
 (add-hook 'python-mode-hook 'pyvenv-autoload)
 
+(use-package! importmagic
+  :config
+  (add-hook! 'python-mode-hook 'importmagic-mode)
+)
+;; (map! :map importmagic-mode-map
+;;       "C-c C-f" #'importmagic-fix-symbol-at-point)
+
 (setq dap-python-debugger 'debugpy)
 
 ;; (map! :map prog-mode-map
@@ -328,12 +334,15 @@ Taken from elpy-shell-send-current-statement"
 ;;                           (lsp))))  ; or lsp-deferred
 
 ;; lsp configs
-;; (after! lsp-mode
+(after! lsp-mode
 ;;   (setq lsp-eldoc-enable-hover nil
 ;;         lsp-signature-auto-activate nil
 ;;         ;; lsp-enable-on-type-formatting nil
 ;;         lsp-enable-symbol-highlighting nil))
-;;         ;; lsp-enable-file-watchers nil))
+  (lsp-headerline-breadcrumb-mode 1)
+  (setq lsp-headerline-breadcrumb-segments '(project path-up-to-project file symbols))
+  )
+        ;; lsp-enable-file-watchers nil))
 
 ;; virtualenv
 ;; (defadvice! +python-poetry-open-repl-a (orig-fn &rest args)
@@ -352,6 +361,8 @@ Taken from elpy-shell-send-current-statement"
 ;; or this:
 ;; (set-popup-rule! "^\\*Python*" :ignore t)
 
+;; add .bash_aliases to sh-mode auto mode
+(add-to-list 'auto-mode-list '("\\.bash_aliases\\'" . sh-mode))
 
 (use-package! iedit
   :bind (("C-;" . iedit-mode))
@@ -486,12 +497,15 @@ Taken from elpy-shell-send-current-statement"
 ;; Cache gpg file password so you only need to set it once and not every time you save the file
 (setq epa-file-cache-passphrase-for-symmetric-encryption t)
 
-;; Useful Functions
-;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)
+;; Make scratchpad buffers inherit major mode of the current buffer
+(setq doom-scratch-buffer-major-mode 1)
 
 
 ;; Latex configuration
-(setq TeX-save-query nil)
+(setq TeX-save-query nil
+      TeX-error-overview-open-after-TeX-run t
+      TeX-error-overview-setup 'separate-window)
+
 ;; Enable yafolding for tex-mode
 (add-hook! cdlatex-mode #'yafolding-mode)
 
@@ -506,10 +520,70 @@ Taken from elpy-shell-send-current-statement"
    ;; map TAB to ivy-partial-or-done. Two tabs restores the ivy-alt-done functionality
   "TAB" #'ivy-partial-or-done))
 
-(use-package! peep-dired)
+(use-package! peep-dired
+  :after dired
+  :bind (:map dired-mode-map
+         ("C-SPC" . peep-dired)))
+
+(use-package! find-file-rg
+  :bind (("C-c C-f" . find-file-rg)
+         ("C-c C-S-f" . find-file-rg-at-point)
+         )
+  )
+
+
+;; Capitalize, upcase and downcase word-at-point for real. Taken from
+;; https://christiantietze.de/posts/2021/03/change-case-of-word-at-point
+(defun ct/word-boundary-at-point-or-region (&optional callback)
+  "Return the boundary (beginning and end) of the word at point, or region, if any.
+  Forwards the points to CALLBACK as (CALLBACK p1 p2), if present.
+
+URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
+  (let ((deactivate-mark nil)
+        $p1 $p2)
+    (if (use-region-p)
+        (setq $p1 (region-beginning)
+              $p2 (region-end))
+      (save-excursion
+        (skip-chars-backward "[:alpha:]")
+        (setq $p1 (point))
+        (skip-chars-forward "[:alpha:]")
+        (setq $p2 (point))))
+    (when callback
+      (funcall callback $p1 $p2))
+    (list $p1 $p2)))
+
+(defun ct/capitalize-region (p1 p2)
+  (downcase-region p1 p2)
+  (upcase-initials-region p1 p2))
+
+(defun ct/capitalize-word-at-point ()
+  (interactive)
+  (ct/word-boundary-at-point-or-region #'ct/capitalize-region))
+
+;; (defun ct/capitalize-word-at-point ()
+;;   (interactive)
+;;   (ct/word-boundary-at-point-or-region #'upcase-initials-region))
+
+(defun ct/downcase-word-at-point ()
+  (interactive)
+  (ct/word-boundary-at-point-or-region #'downcase-region))
+
+(defun ct/upcase-word-at-point ()
+  (interactive)
+  (ct/word-boundary-at-point-or-region #'upcase-region))
+
+;; Set global shortcuts
+(global-set-key (kbd "M-c") #'ct/capitalize-word-at-point)
+(global-set-key (kbd "M-u") #'ct/upcase-word-at-point)
+(global-set-key (kbd "M-l") #'ct/downcase-word-at-point)
+
 
 ;; org mode configuration
 (load! "+org")
 
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")
+
+;; Useful Functions
+;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)

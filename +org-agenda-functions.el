@@ -1,4 +1,4 @@
-;;; +org2.el -*- lexical-binding: t; -*-
+;;; +org-agenda-functions.el -*- lexical-binding: t; -*-
 
 ;; Adapted from https://github.com/weirdNox/dotfiles/
 
@@ -389,11 +389,12 @@
         (goto-char (point-max))
         (+agenda-render-block (nreverse +agenda-high-priority)    "High Priority")
         (+agenda-render-block +agenda-projects                    "Projects" #'+agenda-project-printer)
-        (+agenda-render-block (nreverse +agenda-isolated-tasks)   "Tarefas isoladas")
-        (+agenda-render-block (nreverse +agenda-low-priority)     "Baixa prioridade")
-        (+agenda-render-block (nreverse +agenda-archivable-tasks) "Tarefas a arquivar")
-        (+agenda-render-block (nreverse +agenda-planned-tasks)    "Tarefas planeadas")
-        (+agenda-render-block (nreverse +agenda-hold-tasks)       "Tarefas em espera")))))
+        ;; (+agenda-render-block (nreverse +agenda-isolated-tasks)   "Tarefas isoladas")
+        ;; (+agenda-render-block (nreverse +agenda-low-priority)     "Baixa prioridade")
+        ;; (+agenda-render-block (nreverse +agenda-archivable-tasks) "Tarefas a arquivar")
+        ;; (+agenda-render-block (nreverse +agenda-planned-tasks)    "Tarefas planeadas")
+        ;; (+agenda-render-block (nreverse +agenda-hold-tasks)       "Tarefas em espera")
+        ))))
 ;; Private information
 (defvar +agenda-show-private t
   "If non-nil, show sensitive information on the agenda.")
@@ -410,4 +411,3 @@
       (add-text-properties (point-at-bol) (point-at-eol) '(face nil)))))
 (advice-add 'org-agenda-change-all-lines :before '+agenda*change-all-lines-fixface)
 ;; End
-;; use-package

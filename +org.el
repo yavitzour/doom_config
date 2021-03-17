@@ -9,10 +9,6 @@
   (add-hook 'org-mode-hook 'org-appear-mode)
   )
 
-(use-package! org-appear
-  :init
-  )
-
 (after! org
   (setq org-use-property-inheritance t              ; it's convenient to have properties inherited
         org-log-done 'time                          ; having the time an item is done sounds convininet

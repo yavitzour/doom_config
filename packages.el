@@ -74,9 +74,14 @@
 
 (package! ripgrep)
 
-(package! modus-operandi-theme)
+(package! modus-themes
+  :recipe (:host gitlab
+           :repo "protesilaos/modus-themes")
+)
 
-(package! modus-vivendi-theme)
+;; (package! modus-operandi-theme)
+
+;; (package! modus-vivendi-theme)
 
 (package! exec-path-from-shell)
 
@@ -105,3 +110,9 @@
 (package! org-appear :recipe
           (:host github
            :repo "awth13/org-appear"))
+
+(package! find-file-rg :recipe
+          (:host github
+           :repo "muffinmad/emacs-find-file-rg"))
+
+(package! importmagic)
