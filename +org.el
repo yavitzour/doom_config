@@ -2,8 +2,6 @@
 
 ;; org configuration - heavily influenced by https://www.labri.fr/perso/nrougier/GTD/index.html
 
-(setq org-directory "~/Dropbox/org/") ; let's put files here
-
 (use-package! org-appear
   :init
   (add-hook 'org-mode-hook 'org-appear-mode)

@@ -30,50 +30,47 @@
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
 ;; (setq-default line-spacing 2)
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-
-(if (not (display-graphic-p))
-    (setq doom-theme 'doom-dark+)
-  (setq doom-theme 'doom-one-light))
-
-;; (when (display-graphic-p) (setq doom-theme 'doom-one-light))
-
+;; Mixed Pitch
 ;; (use-package! mixed-pitch
 ;;   :defer
 ;;   :config
 ;;   (setq mixed-pitch-variable-pitch-cursor nil)
 ;;   :hook
 ;;   (text-mode . mixed-pitch-mode))
-(setq mixed-pitch-set-height t)
+;; (setq mixed-pitch-set-height t)
 
-;; (setq doom-theme 'leuven)
-;; (setq doom-theme 'modus-operandi)
-;; (setq doom-theme 'solo-jazz)
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+
+(if (not (display-graphic-p))
+    (setq doom-theme 'doom-dark+)
+  (setq doom-theme 'modus-operandi))
 
 ;; dark themes:
+;; modus-vivendi
 ;; doom-one
 ;; doom-dark+
 ;; doom-acario-dark
-;; modus-vivendi
+
+;; light themes
+;; modus-operandi
+;; leuven
+;; doom-one-light
+;; solo-jazz
 
 (use-package! heaven-and-hell
   :demand t
   :init
   ;; (setq heaven-and-hell-theme-type 'dark) ;; Omit to use light by default
   (setq heaven-and-hell-themes
-        '((light . doom-one-light)
+        '((light . modus-operandi)
           (dark . modus-vivendi))
-        ;; '((light . modus-operandi)
-        ;;   (dark . doom-light))
-        ;; '((light . modus-one-light)
-        ;;   (dark . modus-vivendi))
-        ) ;; Themes can be the list: (dark . (tsdh-dark wombat))
-  ;; Optionall, load themes without asking for confirmation.
+        )
+  ;; Load themes without asking for confirmation.
   (setq heaven-and-hell-load-theme-no-confirm t)
 
-  (defvar my-themes '(doom-one-light doom-dark+ modus-operandi modus-vivendi leuven))
+  (defvar my-themes '(doom-one-light doom-dark+ modus-operandi modus-vivendi leuven solo-jazz))
   ;; Changing list to circular list
   (nconc my-themes my-themes)
   (defvar my-current-theme 'default)
@@ -181,49 +178,7 @@
   (add-hook! org-shiftright-final #'windmove-right)
   )
 
-;;
-;; Copy the buffer file name into the kill ring
-;;
-(defun copy-buffer-file-name-as-kill (choice)
-  "Copy the buffer-file-name to the kill-ring"
-  (interactive "cCopy Buffer Name (f) Full, (d) Directory, (n) Name")
-  (let ((new-kill-string)
-        (name (if (eq major-mode 'dired-mode)
-                  (dired-get-filename)
-                (or (buffer-file-name) ""))))
-    (cond ((eq choice ?f)
-           (setq new-kill-string name))
-          ((eq choice ?d)
-           (setq new-kill-string (file-name-directory name)))
-          ((eq choice ?n)
-           (setq new-kill-string (file-name-nondirectory name)))
-          (t (message "Quit")))
-    (when new-kill-string
-      (message "%s copied" new-kill-string)
-      (kill-new new-kill-string))))
-
-(global-set-key (kbd "C-c C-b") 'copy-buffer-file-name-as-kill)
-
-;; comments - https://stackoverflow.com/a/9697222/14042240
-(defun comment-or-uncomment-region-or-line ()
-  "Comments or uncomments the region or the current line if there's no active region."
-  (interactive)
-  (let (beg end)
-    (if (region-active-p)
-        (setq beg (region-beginning) end (region-end))
-      (setq beg (line-beginning-position) end (line-end-position)))
-    (comment-or-uncomment-region beg end)
-    ;; (forward-line)
-    )
-  )
-
-;; backword-kill-word if no region active
-(defun obar/kill-region-or-backward-word ()
-  "Kill region if active, else backword-kill-word"
-  (interactive)
-  (if (region-active-p)
-      (kill-region (region-beginning) (region-end))
-    (backward-kill-word 1)))
+(load! "+misc-functions")
 
 ;; My bindings
 (map!
@@ -233,88 +188,14 @@
  "<f2>" #'next-error
  "S-<f2>" #'previous-error
  "C-w" #'obar/kill-region-or-backward-word
- "M-l" #'downcase-dwim
- "M-u" #'upcase-dwim
+ "C-c C-b" #'copy-buffer-file-name-as-kill
+ "M-c" #'ct/capitalize-word-at-point
+ "M-u" #'ct/upcase-word-at-point
+ "M-l" #'ct/downcase-word-at-point
  )
 
 ;; Python
-(setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
-
-(after! realgud-pdb
-  (setq realgud:pdb-command-name "python3 -m pdb"))
-
-(defun python-shell-send-current-statement ()
-  "Send current statement to Python shell.
-Taken from elpy-shell-send-current-statement"
-  (interactive)
-  (let ((beg (python-nav-beginning-of-statement))
-        (end (python-nav-end-of-statement)))
-    (python-shell-send-string (buffer-substring beg end)))
-  (python-nav-forward-statement))
-
-(defun python-shell-send-region-or-line nil
-  "Sends from 'python-mode' buffer to a python shell, intelligently."
-  (interactive)
-  (cond ((region-active-p)
-         (setq deactivate-mark t)
-         (python-shell-send-region (region-beginning) (region-end))
-         ) (t (python-shell-send-current-statement))))
-
-(defun my-run-python ()
-  "Starts python shell buffer if one is not running and jumps to it"
-  (interactive)
-  (run-python)
-  (pop-to-buffer "*Python*"))
-
-(map! :map python-mode-map
-      "C-c C-h" #'python-eldoc-at-point
-      "C-c C-f" #'python-shell-send-defun
-      [remap python-shell-send-region] #'python-shell-send-region-or-line
-      "C-c C-s" #'my-run-python)
-
-;;; Add matlab-like behavior to comint based modes (shell, python-shell)
-(map! :map comint-mode-map
-      "M-<up>" #'comint-previous-matching-input-from-input
-      "M-<down>" #'comint-next-matching-input-from-input)
-
-(use-package! pyvenv
-  :config
-  (pyvenv-mode 1)
-
-  ;; ;; Set correct Python interpreter
-  ;; (setq pyvenv-post-activate-hooks
-  ;;       (list (lambda ()
-  ;;               (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
-  ;; (setq pyvenv-post-deactivate-hooks
-  ;;       (list (lambda ()
-  ;;               (setq python-shell-interpreter "python"))))
-  )
-
-(defun pyvenv-autoload ()
-  (interactive)
-  "auto activate venv/env directory if exists"
-  (setq venv-patterns '("venv" "env"))
-  (dolist (venv venv-patterns)
-    (f-traverse-upwards (lambda (path)
-                          (let ((venv-path (f-expand venv path)))
-                            (when (f-exists? venv-path)
-                              (progn (message venv-path)
-                                     (pyvenv-activate venv-path))
-                              ))))
-    )
-  )
-
-
-(add-hook 'python-mode-hook 'pyvenv-autoload)
-
-(use-package! importmagic
-  :config
-  (add-hook! 'python-mode-hook 'importmagic-mode)
-)
-;; (map! :map importmagic-mode-map
-;;       "C-c C-f" #'importmagic-fix-symbol-at-point)
-
-(setq dap-python-debugger 'debugpy)
+(load! "+python")
 
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
@@ -335,34 +216,17 @@ Taken from elpy-shell-send-current-statement"
 
 ;; lsp configs
 (after! lsp-mode
-;;   (setq lsp-eldoc-enable-hover nil
-;;         lsp-signature-auto-activate nil
-;;         ;; lsp-enable-on-type-formatting nil
-;;         lsp-enable-symbol-highlighting nil))
+  ;; (setq lsp-eldoc-enable-hover nil
+  ;;       lsp-signature-auto-activate nil
+  ;;       ;; lsp-enable-on-type-formatting nil
+  ;;       lsp-enable-file-watchers nil
+  ;;       lsp-enable-symbol-highlighting nil)
   (lsp-headerline-breadcrumb-mode 1)
   (setq lsp-headerline-breadcrumb-segments '(project path-up-to-project file symbols))
   )
-        ;; lsp-enable-file-watchers nil))
-
-;; virtualenv
-;; (defadvice! +python-poetry-open-repl-a (orig-fn &rest args)
-;;   "Use the Python binary from the current virtual environment."
-;;   :around #'+python/open-repl
-;;   (if (getenv "VIRTUAL_ENV")
-;;       (let ((python-shell-interpreter (executable-find "ipython")))
-;;         (apply orig-fn args))
-;;     (apply orig-fn args)))
-
-
-;; not sure what this does:
-;; (after! python
-;;   (setq python-shell-completion-native-enable nil))
-
-;; or this:
-;; (set-popup-rule! "^\\*Python*" :ignore t)
 
 ;; add .bash_aliases to sh-mode auto mode
-(add-to-list 'auto-mode-list '("\\.bash_aliases\\'" . sh-mode))
+(add-to-list 'auto-mode-alist '("\\.bash_aliases\\'" . sh-mode))
 
 (use-package! iedit
   :bind (("C-;" . iedit-mode))
@@ -504,7 +368,7 @@ Taken from elpy-shell-send-current-statement"
 ;; Latex configuration
 (setq TeX-save-query nil
       TeX-error-overview-open-after-TeX-run t
-      TeX-error-overview-setup 'separate-window)
+      TeX-error-overview-setup 'separate-frame)
 
 ;; Enable yafolding for tex-mode
 (add-hook! cdlatex-mode #'yafolding-mode)
@@ -531,56 +395,9 @@ Taken from elpy-shell-send-current-statement"
          )
   )
 
-
-;; Capitalize, upcase and downcase word-at-point for real. Taken from
-;; https://christiantietze.de/posts/2021/03/change-case-of-word-at-point
-(defun ct/word-boundary-at-point-or-region (&optional callback)
-  "Return the boundary (beginning and end) of the word at point, or region, if any.
-  Forwards the points to CALLBACK as (CALLBACK p1 p2), if present.
-
-URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
-  (let ((deactivate-mark nil)
-        $p1 $p2)
-    (if (use-region-p)
-        (setq $p1 (region-beginning)
-              $p2 (region-end))
-      (save-excursion
-        (skip-chars-backward "[:alpha:]")
-        (setq $p1 (point))
-        (skip-chars-forward "[:alpha:]")
-        (setq $p2 (point))))
-    (when callback
-      (funcall callback $p1 $p2))
-    (list $p1 $p2)))
-
-(defun ct/capitalize-region (p1 p2)
-  (downcase-region p1 p2)
-  (upcase-initials-region p1 p2))
-
-(defun ct/capitalize-word-at-point ()
-  (interactive)
-  (ct/word-boundary-at-point-or-region #'ct/capitalize-region))
-
-;; (defun ct/capitalize-word-at-point ()
-;;   (interactive)
-;;   (ct/word-boundary-at-point-or-region #'upcase-initials-region))
-
-(defun ct/downcase-word-at-point ()
-  (interactive)
-  (ct/word-boundary-at-point-or-region #'downcase-region))
-
-(defun ct/upcase-word-at-point ()
-  (interactive)
-  (ct/word-boundary-at-point-or-region #'upcase-region))
-
-;; Set global shortcuts
-(global-set-key (kbd "M-c") #'ct/capitalize-word-at-point)
-(global-set-key (kbd "M-u") #'ct/upcase-word-at-point)
-(global-set-key (kbd "M-l") #'ct/downcase-word-at-point)
-
-
 ;; org mode configuration
-(load! "+org")
+(setq org-directory "~/Dropbox/org/") ; let's put files here
+(when (display-graphic-p) (load! "+org"))
 
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")
