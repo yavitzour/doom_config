@@ -45,7 +45,8 @@
 
 (if (not (display-graphic-p))
     (setq doom-theme 'doom-dark+)
-  (setq doom-theme 'modus-operandi))
+  (setq doom-theme 'modus-operandi)
+  )
 
 ;; dark themes:
 ;; modus-vivendi
@@ -192,6 +193,7 @@
  "M-c" #'ct/capitalize-word-at-point
  "M-u" #'ct/upcase-word-at-point
  "M-l" #'ct/downcase-word-at-point
+ "C-z" #'zap-up-to-char
  )
 
 ;; Python
@@ -364,7 +366,6 @@
 ;; Make scratchpad buffers inherit major mode of the current buffer
 (setq doom-scratch-buffer-major-mode 1)
 
-
 ;; Latex configuration
 (setq TeX-save-query nil
       TeX-error-overview-open-after-TeX-run t
@@ -395,9 +396,32 @@
          )
   )
 
+
+(use-package! good-scroll
+  :config
+  (good-scroll-mode 1)
+  )
+
 ;; org mode configuration
 (setq org-directory "~/Dropbox/org/") ; let's put files here
 (when (display-graphic-p) (load! "+org"))
+
+;; ejc-sql
+;; (use-package! ejc-sql
+;;   :config
+;;   (setq ejc-use-flx t)
+;;   (setq ejc-flx-threshold 2)
+;;   (require 'ejc-company)
+;;   (push 'ejc-company-backend company-backends)
+;;   (add-hook 'ejc-sql-minor-mode-hook
+;;             (lambda ()
+;;               (company-mode t)))
+;;   (setq ejc-complete-on-dot t)
+;;   (setq ejc-completion-system 'ivy)
+;;   (add-hook 'ejc-sql-minor-mode-hook
+;;           (lambda ()
+;;             (ejc-eldoc-setup)))
+;; )
 
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")

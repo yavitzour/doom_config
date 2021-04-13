@@ -81,3 +81,8 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
 (defun ct/upcase-word-at-point ()
   (interactive)
   (ct/word-boundary-at-point-or-region #'upcase-region))
+
+(defun align-non-space (BEG END)
+  "Align non-space columns in region BEG END."
+  (interactive "r")
+  (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))

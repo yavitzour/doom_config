@@ -116,3 +116,7 @@
            :repo "muffinmad/emacs-find-file-rg"))
 
 (package! importmagic)
+
+;; (package! ejc-sql)
+
+(package! good-scroll)

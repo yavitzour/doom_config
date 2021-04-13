@@ -336,55 +336,71 @@
             ;; NOTE(nox): Update parent project status
             (unless (or (= +agenda-level 0) (eq +agenda-project-status 'next))
               (if project-status
-                  (when (memq project-status '(next planned)) (setq +agenda-project-status project-status))
-                (when (or (string= todo "STRT") scheduled-past-or-now)
-                  (setq +agenda-project-status 'next))))
+                  (if (and (eq project-status 'planned) (= +agenda-level 0))
+                      (push entry +agenda-planned-tasks)
+                    (setq return entry))
 
-            (if project-status
-                (if (and (eq project-status 'planned) (= +agenda-level 0))
-                    (push entry +agenda-planned-tasks)
-                  (setq return entry))
+                (if (= +agenda-level 0)
+                    (unless (+agenda-filter-priorities entry)
+                      (when (or (not has-scheduling) (and (string= todo "STRT")
+                                                          scheduled-future))
+                        (push entry +agenda-isolated-tasks)))
 
-              (if (= +agenda-level 0)
-                  (unless (+agenda-filter-priorities entry)
-                    (when (or (not has-scheduling) (and (string= todo "STRT")
-                                                        scheduled-future))
-                      (push entry +agenda-isolated-tasks)))
+                  (when (or (string= todo "STRT") scheduled-past-or-now) (setq return entry))))))))
+        return)))
 
-                (when (or (string= todo "STRT") scheduled-past-or-now) (setq return entry))))))))
-      return)))
+  (defun +agenda-tasks (&optional _)
+    (catch 'exit
+      (let ((files (org-agenda-files nil 'ifmode))
+            +agenda-projects +agenda-isolated-tasks +agenda-high-priority
+            +agenda-low-priority +agenda-planned-tasks +agenda-hold-tasks
+            +agenda-archivable-tasks
+            org-todo-regexp org-not-done-regexp org-complex-heading-regexp org-done-keywords
+            org-done-keywords-for-agenda file buffer ast)
+        (while (setq file (pop files))
+          (org-check-agenda-file file)
+          (setq buffer (if (file-exists-p file)
+                           (org-get-agenda-file-buffer file)
+                         (error "No such file %s" file)))
 
-(defun +agenda-tasks (&optional _)
-  (catch 'exit
-    (let ((files (org-agenda-files nil 'ifmode))
-          +agenda-projects +agenda-isolated-tasks +agenda-high-priority
-          +agenda-low-priority +agenda-planned-tasks +agenda-hold-tasks
-          +agenda-archivable-tasks
-          org-todo-regexp org-not-done-regexp org-complex-heading-regexp org-done-keywords
-          org-done-keywords-for-agenda file buffer ast)
-      (while (setq file (pop files))
-        (org-check-agenda-file file)
-        (setq buffer (if (file-exists-p file)
-                         (org-get-agenda-file-buffer file)
-                       (error "No such file %s" file)))
+          (unless org-todo-regexp
+            (dolist (variable '(org-todo-regexp org-not-done-regexp org-complex-heading-regexp
+                                                org-done-keywords org-done-keywords-for-agenda))
+              (set variable (buffer-local-value variable buffer))))
 
-        (unless org-todo-regexp
-          (dolist (variable '(org-todo-regexp org-not-done-regexp org-complex-heading-regexp
-                                              org-done-keywords org-done-keywords-for-agenda))
-            (set variable (buffer-local-value variable buffer))))
+          (with-current-buffer buffer
+            (org-with-wide-buffer
+             (unless (derived-mode-p 'org-mode) (error "Agenda file %s is not in Org mode" file))
+             (setq ast (org-element-parse-buffer 'headline))
+             (let ((+agenda-level 0)
+                   +agenda-parent-tags)
+               (setq +agenda-projects
+                     (append
+                      (+agenda-flatten-list
+                       (org-element-map ast 'headline #'+agenda-tasks-process-headline nil nil 'headline))
+                      +agenda-projects))))))
 
-        (with-current-buffer buffer
-          (org-with-wide-buffer
-           (unless (derived-mode-p 'org-mode) (error "Agenda file %s is not in Org mode" file))
-           (setq ast (org-element-parse-buffer 'headline))
-           (let ((+agenda-level 0)
-                 +agenda-parent-tags)
-             (setq +agenda-projects
-                   (append
-                    (+agenda-flatten-list
-                     (org-element-map ast 'headline #'+agenda-tasks-process-headline nil nil 'headline))
-                    +agenda-projects))))))
+        (let ((inhibit-read-only t))
+          (goto-char (point-max))
+          (+agenda-render-block (nreverse +agenda-high-priority)    "High Priority")
+          (+agenda-render-block +agenda-projects                    "Projects" #'+agenda-project-printer)
+          (+agenda-render-block (nreverse +agenda-isolated-tasks)   "Tarefas isoladas")
+          (+agenda-render-block (nreverse +agenda-low-priority)     "Baixa prioridade")
+          (+agenda-render-block (nreverse +agenda-archivable-tasks) "Tarefas a arquivar")
+          (+agenda-render-block (nreverse +agenda-planned-tasks)    "Tarefas planeadas")
+          (+agenda-render-block (nreverse +agenda-hold-tasks)       "Tarefas em espera")))))
+  ;; Private information
+  (defvar +agenda-show-private t
+    "If non-nil, show sensitive information on the agenda.")
 
+  (defun +agenda/toggle-private ()
+    (interactive)
+    (setq +agenda-show-private (not +agenda-show-private))
+    (when  (equal major-mode 'org-agenda-mode) (org-agenda-redo))
+    (message "Private tasks: %s" (if +agenda-show-private "Shown" "Hidden")))
+  ;; Compatibility with their functions
+  (defun +agenda*change-all-lines-fixface (newhead hdmarker &optional fixface just-this)
+    (when (org-get-at-bol 'my-custom-agenda)
       (let ((inhibit-read-only t))
         (goto-char (point-max))
         (+agenda-render-block (nreverse +agenda-high-priority)    "High Priority")
