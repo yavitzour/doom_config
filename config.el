@@ -112,6 +112,7 @@
         ;; modus-themes-bold-constructs t
         ;; modus-themes-slanted-constructs t
         ;; modus-themes-intense-hl-line t
+        modus-themes-syntax 'alt-syntax
         )
   (modus-themes-load-themes)
   ;; :bind
@@ -223,8 +224,9 @@
   ;;       ;; lsp-enable-on-type-formatting nil
   ;;       lsp-enable-file-watchers nil
   ;;       lsp-enable-symbol-highlighting nil)
-  (lsp-headerline-breadcrumb-mode 1)
   (setq lsp-headerline-breadcrumb-segments '(project path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode 1)
+  (setq lsp-python-ms-extra-paths '["."])
   )
 
 ;; add .bash_aliases to sh-mode auto mode
@@ -232,8 +234,7 @@
 
 (use-package! iedit
   :bind (("C-;" . iedit-mode))
-  :config
-  (setq iedit-toggle-key-default nil))
+  )
 
 (use-package! highlight-symbol
   :config
@@ -261,7 +262,6 @@
    "C-x _" #'goto-last-change-reverse)
   )
 
-(setq highlight-indent-guides-suppress-auto-error t)
 (after! highlight-indent-guides
   (highlight-indent-guides-auto-set-faces))
 
@@ -401,6 +401,7 @@
   :config
   (good-scroll-mode 1)
   )
+
 
 ;; org mode configuration
 (setq org-directory "~/Dropbox/org/") ; let's put files here

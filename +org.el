@@ -27,6 +27,13 @@
                                (concat (file-name-as-directory org-directory) "agenda.org")
                                (concat (file-name-as-directory org-directory) "projects.org")))
 
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (julia . t)
+     (python . t)
+     (jupyter . t)))
+
   ;; (setq org-capture-templates nil)
   ;; (setq org-capture-templates
   ;;       `(("i" "Inbox" entry  (file "inbox.org")

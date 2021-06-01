@@ -107,12 +107,12 @@
 
 (package! org-jira)
 
-(package! org-appear :recipe
-          (:host github
+(package! org-appear
+  :recipe (:host github
            :repo "awth13/org-appear"))
 
-(package! find-file-rg :recipe
-          (:host github
+(package! find-file-rg
+  :recipe (:host github
            :repo "muffinmad/emacs-find-file-rg"))
 
 (package! importmagic)
@@ -120,3 +120,9 @@
 ;; (package! ejc-sql)
 
 (package! good-scroll)
+
+(package! emacs-jupyter
+  :recipe (:host github
+           :repo "nnicandro/emacs-jupyter")
+  :pin nil)
+
