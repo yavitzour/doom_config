@@ -109,7 +109,7 @@
         modus-themes-scale-headings t
         modus-themes-mode-line '3d
         modus-themes-completions 'opinionated
-        ;; modus-themes-bold-constructs t
+        modus-themes-bold-constructs t
         ;; modus-themes-slanted-constructs t
         ;; modus-themes-intense-hl-line t
         modus-themes-syntax 'alt-syntax
@@ -182,20 +182,7 @@
 
 (load! "+misc-functions")
 
-;; My bindings
-(map!
- "M-;" #'comment-or-uncomment-region-or-line
- "C-x F" #'find-file-at-point
- "C-x 4 F" #'ffap-other-window
- "<f2>" #'next-error
- "S-<f2>" #'previous-error
- "C-w" #'obar/kill-region-or-backward-word
- "C-c C-b" #'copy-buffer-file-name-as-kill
- "M-c" #'ct/capitalize-word-at-point
- "M-u" #'ct/upcase-word-at-point
- "M-l" #'ct/downcase-word-at-point
- "C-z" #'zap-up-to-char
- )
+(load! "+key-bindings")
 
 ;; Python
 (load! "+python")
@@ -275,59 +262,7 @@
   (add-to-list 'projectile-globally-ignored-directories "blade_env")
   (add-to-list 'projectile-globally-ignored-file-suffixes ".ipynb"))
 
-;; Treemacs config
-(after! treemacs
-  (defvar treemacs-file-ignore-extensions '()
-    "File extension which `treemacs-ignore-filter' will ensure are ignored")
-  (defvar treemacs-file-ignore-globs '()
-    "Globs which will are transformed to `treemacs-file-ignore-regexps' which `treemacs-ignore-filter' will ensure are ignored")
-  (defvar treemacs-file-ignore-regexps '()
-    "RegExps to be tested to ignore files, generated from `treeemacs-file-ignore-globs'")
-  (defun treemacs-file-ignore-generate-regexps ()
-    "Generate `treemacs-file-ignore-regexps' from `treemacs-file-ignore-globs'"
-    (setq treemacs-file-ignore-regexps (mapcar 'dired-glob-regexp treemacs-file-ignore-globs)))
-  (if (equal treemacs-file-ignore-globs '()) nil (treemacs-file-ignore-generate-regexps))
-  (defun treemacs-ignore-filter (file full-path)
-    "Ignore files specified by `treemacs-file-ignore-extensions', and `treemacs-file-ignore-regexps'"
-    (or (member (file-name-extension file) treemacs-file-ignore-extensions)
-        (let ((ignore-file nil))
-          (dolist (regexp treemacs-file-ignore-regexps ignore-file)
-            (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
-  (add-to-list 'treemacs-ignored-file-predicates #'treemacs-ignore-filter))
-
-(setq treemacs-file-ignore-extensions '(;; LaTeX
-                                        "aux"
-                                        "ptc"
-                                        "fdb_latexmk"
-                                        "fls"
-                                        "synctex.gz"
-                                        "toc"
-                                        ;; LaTeX - glossary
-                                        "glg"
-                                        "glo"
-                                        "gls"
-                                        "glsdefs"
-                                        "ist"
-                                        "acn"
-                                        "acr"
-                                        "alg"
-                                        ;; LaTeX - pgfplots
-                                        "mw"
-                                        ;; LaTeX - pdfx
-                                        "pdfa.xmpi"
-                                        ;; Python
-                                        "pyc"
-                                        "ipynb"
-                                        ))
-(setq treemacs-file-ignore-globs '(;; LaTeX
-                                   "*/_minted-*"
-                                   ;; AucTeX
-                                   "*/.auctex-auto"
-                                   "*/_region_.log"
-                                   "*/_region_.tex"
-                                   ;; Python
-                                   "*/__pycache__/*"))
-
+(load! "+treemacs")
 
 ;; Maximize by default
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
@@ -383,7 +318,8 @@
   (map!
    :map ivy-minibuffer-map
    ;; map TAB to ivy-partial-or-done. Two tabs restores the ivy-alt-done functionality
-  "TAB" #'ivy-partial-or-done))
+   "TAB" #'ivy-partial-or-done
+   "C-w" #'ivy-yank-word))
 
 (use-package! peep-dired
   :after dired

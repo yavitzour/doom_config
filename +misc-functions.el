@@ -86,3 +86,36 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
   "Align non-space columns in region BEG END."
   (interactive "r")
   (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
+
+(defun recenter-correctly ()
+  "don't scroll beyond end of file and show line #"
+  (interactive)
+  (let ((pt (point)))
+    (if (save-excursion (forward-line (1- (/ (window-height) 2)))
+                        (end-of-line)
+                        (eobp))
+        (progn (goto-char (point-max))
+               (recenter)
+               (if (eq (window-height) (* (/ (window-height) 2) 2))
+                   (move-to-window-line 0)
+                 (move-to-window-line 1))
+               (recenter)
+               (goto-char pt))
+      (recenter)))
+  (what-line))
+
+(defun search-specific-glob ()
+  "Example for using counsel-projectile-rg to search only within certain extensions"
+  (interactive)
+  (let ((glob (ivy-completing-read "Glob?: " '("*.cljs"
+                                               "*.clj"
+                                               "*.md"
+                                               "*.styl"
+                                               "*.css"))))
+    (counsel-projectile-rg (concat "--glob " glob))))
+
+(defun projectile-search-py ()
+  "Use counsel-projectile-rg to search only .py files"
+  (interactive)
+  (let ((glob (ivy-completing-read "Glob?: " '("*.py"))))
+    (counsel-projectile-rg (concat "--glob " glob))))

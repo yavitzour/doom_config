@@ -79,10 +79,6 @@
            :repo "protesilaos/modus-themes")
 )
 
-;; (package! modus-operandi-theme)
-
-;; (package! modus-vivendi-theme)
-
 (package! exec-path-from-shell)
 
 (package! info-colors)
