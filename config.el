@@ -104,16 +104,16 @@
 (use-package! modus-themes
   :init
   (setq modus-themes-org-blocks 'rainbow
-        modus-themes-rainbow-headings t
-        ;; modus-themes-section-headings t
-        modus-themes-scale-headings t
-        modus-themes-mode-line '3d
-        modus-themes-completions 'opinionated
-        modus-themes-bold-constructs t
-        ;; modus-themes-slanted-constructs t
-        ;; modus-themes-intense-hl-line t
-        modus-themes-syntax 'alt-syntax
-        )
+       modus-themes-rainbow-headings t
+       ;; modus-themes-section-headings t
+       modus-themes-scale-headings t
+       modus-themes-mode-line '3d
+       modus-themes-completions 'opinionated
+       modus-themes-bold-constructs t
+       ;; modus-themes-slanted-constructs t
+       ;; modus-themes-intense-hl-line t
+       modus-themes-syntax 'alt-syntax
+       )
   (modus-themes-load-themes)
   ;; :bind
   ;; (("<f5>" . modus-themes-toggle))
@@ -190,13 +190,12 @@
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
 
-;; (use-package! tree-sitter :after python-mode)
+(use-package! tree-sitter
+  :config
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 
-;; (after! tree-sitter
-;;   (require 'tree-sitter)
-;;   (require 'tree-sitter-langs)
-;;   (require 'tree-sitter-hl)
-;;   (add-hook 'python-mode-hook #'tree-sitter-hl-mode))
 
 ;; pyright - requires new nodejs - next ubuntu?
 ;; (use-package! lsp-pyright
@@ -255,6 +254,12 @@
 (use-package! winnow
   :hook
   (grep-mode . winnow-mode)
+  )
+
+(load! "winnow-embark")
+(use-package! winnow-embark
+  :hook
+  (embark-collect-mode . winnow-embark-mode)
   )
 
 (use-package! projectile

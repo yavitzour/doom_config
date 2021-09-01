@@ -34,6 +34,14 @@
      (python . t)
      (jupyter . t)))
 
+  (setq org-babel-default-header-args:jupyter-python '(
+                                                       (:session . "py")
+                                                       (:kernel . "python3")))
+  (after! org-src
+    (dolist (lang '(python typescript jupyter))
+      (cl-pushnew (cons (format "jupyter-%s" lang) lang)
+                  org-src-lang-modes :key #'car)))
+
   ;; (setq org-capture-templates nil)
   ;; (setq org-capture-templates
   ;;       `(("i" "Inbox" entry  (file "inbox.org")

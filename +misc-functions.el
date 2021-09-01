@@ -119,3 +119,27 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
   (interactive)
   (let ((glob (ivy-completing-read "Glob?: " '("*.py"))))
     (counsel-projectile-rg (concat "--glob " glob))))
+
+(defun my/vterm-execute-current-line ()
+  "Insert text of current line in vterm and execute."
+  (interactive)
+  (require 'vterm)
+  (eval-when-compile (require 'subr-x))
+  (let ((command (string-trim (buffer-substring
+                               (save-excursion
+                                 (beginning-of-line)
+                                 (point))
+                               (save-excursion
+                                 (end-of-line)
+                                 (point))))))
+    (let ((buf (current-buffer)))
+      (unless (get-buffer vterm-buffer-name)
+        (vterm))
+      (display-buffer vterm-buffer-name t)
+      (switch-to-buffer-other-window vterm-buffer-name)
+      (vterm--goto-line -1)
+      (message command)
+      (vterm-send-string command)
+      (vterm-send-return)
+      (switch-to-buffer-other-window buf)
+      )))
