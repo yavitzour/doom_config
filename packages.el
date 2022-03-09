@@ -40,6 +40,7 @@
 ;; Use `:pin' to specify a particular commit to install.
 ;(package! builtin-package :pin "1a2b3c4d5e")
 
+
 ;; Doom's packages are pinned to a specific commit and updated from release to
 ;; release. The `unpin!' macro allows you to unpin single packages...
 ;(unpin! pinned-package)
@@ -70,7 +71,9 @@
 
 (package! modus-themes
   :recipe (:host gitlab
-           :repo "protesilaos/modus-themes")
+           :repo "protesilaos/modus-themes"
+)
+  :pin "e02480f0b0a56b8575351db6504bf0d0417719ad"
 )
 
 (package! exec-path-from-shell)
@@ -116,3 +119,26 @@
            :repo "nnicandro/emacs-jupyter")
   :pin nil)
 
+(package! math-delimiters
+    :recipe (:host github
+             :repo "oantolin/math-delimiters")
+    )
+
+(package! dogears
+  :recipe (
+           :host github
+           :repo "alphapapa/dogears.el")
+  )
+
+(package! popper)
+
+(package! dired-subtree)
+
+(package! python-mls)
+
+(package! zk
+  :recipe (
+           :host github
+           :repo "localauthor/zk"
+           )
+  )

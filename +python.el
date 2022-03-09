@@ -1,7 +1,7 @@
 ;;; +python.el -*- lexical-binding: t; -*-
 
 ;; Python configuration
-(setq python-shell-interpreter-args "-m IPython --simple-prompt -i")
+(setq python-shell-interpreter-args "-m IPython --simple-prompt")
 
 (after! realgud-pdb
   (setq realgud:pdb-command-name "python3 -m pdb"))
@@ -29,11 +29,41 @@ Taken from elpy-shell-send-current-statement"
   (run-python)
   (pop-to-buffer "*Python*"))
 
+(defun print-python-expression-in-repl ()
+  "Implying the first statement of the line is actually an expression, prints
+its value at the REPL."
+  (interactive)
+  (let ((initial-point (point)))
+    ;; mark expression at point
+    (beginning-of-line)
+    (set-mark (point))
+    (python-nav-end-of-statement)
+
+    ;; print marked expression in python shell
+    (let* ((region-start (min (+ 1 (point)) (point-max)))
+           (expr (string-trim-right
+                  (buffer-substring-no-properties region-start (mark)))))
+      (python-shell-send-string
+       (format "print(); print('=> %s'); print(%s, end='')" expr expr)))
+
+    (deactivate-mark)
+    (goto-char initial-point)))
+
+(defun print-python-object-fields-in-repl ()
+  "Sends symbol at point to IPython REPL with the `ppretty' function defined in ipython_config.
+Lists the object's non-method fields and their respective current values."
+  (interactive)
+  (let ((sym (symbol-at-point)))
+    (python-shell-send-string
+     (format "print(); print('=> %s'); ppretty(%s)" sym sym))))
+
 (map! :map python-mode-map
       "C-c C-h" #'python-eldoc-at-point
       "C-c C-f" #'python-shell-send-defun
       [remap python-shell-send-region] #'python-shell-send-region-or-line
-      "C-c C-s" #'my-run-python)
+      "C-c C-s" #'my-run-python
+      "C-c C-k" #'print-python-expression-in-repl
+      "C-c C-o" #'print-python-object-fields-in-repl)
 
 ;;; Add matlab-like behavior to comint based modes (shell, python-shell)
 (map! :map comint-mode-map
@@ -95,3 +125,7 @@ Taken from elpy-shell-send-current-statement"
 
 ;; or this:
 ;; (set-popup-rule! "^\\*Python*" :ignore t)
+
+(use-package! python-mls
+  :config
+  (python-mls-setup))

@@ -24,11 +24,14 @@
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 14))
 ;; (setq doom-font (font-spec :family "SourceCodePro" :size 14))
+;; (setq doom-font (font-spec :family "Consolas" :size 14))
+;; (setq doom-font (font-spec :family "Hack" :size 14))
+;; (setq doom-font (font-spec :family "DejaVuSansMono" :size 14))
 (setq doom-font (font-spec :family "OfficeCodePro" :size 15)
       doom-variable-pitch-font (font-spec :family "Ubuntu" :size 15)
       doom-big-font (font-spec :family "OfficeCodePro" :size 20))
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
-;; (setq-default line-spacing 2)
+;; (setq-default line-spacing 1)
 
 ;; Mixed Pitch
 ;; (use-package! mixed-pitch
@@ -38,6 +41,8 @@
 ;;   :hook
 ;;   (text-mode . mixed-pitch-mode))
 ;; (setq mixed-pitch-set-height t)
+
+(defvar my-doom-common-dir "~/.doom.d.common")
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -95,6 +100,14 @@
               window-combination-resize t)
 
 (setq kill-whole-line t)
+
+(global-subword-mode 1)                           ; Iterate through CamelCase words
+
+;; ask to choose buffer after splitting window
+;; (defadvice! prompt-for-buffer (&rest _)
+;;   :after '(split-window)
+;;   (consult-buffer))
+
 
 ;; Backup
 (setq auto-save-default t
@@ -180,9 +193,20 @@
   (add-hook! org-shiftright-final #'windmove-right)
   )
 
-(load! "+misc-functions")
+(use-package! vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
-(load! "+key-bindings")
+(load! "+misc-functions" my-doom-common-dir)
+
+(load! "+key-bindings" my-doom-common-dir)
 
 ;; Python
 (load! "+python")
@@ -213,6 +237,33 @@
   (setq lsp-headerline-breadcrumb-segments '(project path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode 1)
   (setq lsp-python-ms-extra-paths '["."])
+
+  ;; UI settings
+  ;; (setq lsp-ui-doc-enable nil)
+  ;; (setq lsp-ui-doc-header t)
+  ;; (setq lsp-ui-doc-include-signature t)
+  ;; (setq lsp-ui-doc-border (face-foreground 'default))
+  ;; (setq lsp-ui-sideline-show-code-actions t)
+  ;; (setq lsp-ui-sideline-delay 0.05)
+
+  ;; Other settings
+  ;; (setq lsp-auto-guess-root t)
+  ;; (setq lsp-log-io nil)
+  ;; (setq lsp-restart 'auto-restart)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-enable-on-type-formatting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+  ;; (setq lsp-signature-render-documentation nil)
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-modeline-code-actions-enable nil)
+  ;; (setq lsp-modeline-diagnostics-enable nil)
+  ;; (setq lsp-headerline-breadcrumb-enable nil)
+  ;; (setq lsp-semantic-tokens-enable nil)
+  ;; (setq lsp-enable-folding nil)
+  ;; (setq lsp-enable-imenu nil)
+  ;; (setq lsp-enable-snippet nil)
+  ;; (setq read-process-output-max (* 1024 1024)) ;; 1MB
+  ;; (setq lsp-idle-delay 0.5)
   )
 
 ;; add .bash_aliases to sh-mode auto mode
@@ -241,12 +292,12 @@
   (prog-mode . yafolding-mode)
   )
 
-(use-package! goto-chg
-  :config
-  (map!
-   "C-x -" #'goto-last-change
-   "C-x _" #'goto-last-change-reverse)
-  )
+;; (use-package! goto-chg
+;;   :config
+;;   (map!
+;;    "C-x -" #'goto-last-change
+;;    "C-x _" #'goto-last-change-reverse)
+;;   )
 
 (after! highlight-indent-guides
   (highlight-indent-guides-auto-set-faces))
@@ -314,6 +365,24 @@
 ;; Enable yafolding for tex-mode
 (add-hook! cdlatex-mode #'yafolding-mode)
 
+(use-package! math-delimiters
+  :config
+  (setq math-delimiters-compressed-display-math nil)
+  (setq math-delimiters-include-characters '(?. ?,))
+  )
+
+(after! org
+  (map!
+   :map org-mode-map
+   "$" #'math-delimiters-insert)
+  )
+
+(after! tex
+  (map!
+   :map TeX-mode-map
+   "$" #'math-delimiters-insert)
+  )
+
 (use-package! easy-kill
   :config
   (global-set-key [remap kill-ring-save] #'easy-kill)
@@ -337,15 +406,44 @@
          )
   )
 
-
 (use-package! good-scroll
   :config
   (good-scroll-mode 1)
   )
 
+(use-package! dogears
+  :init
+  (dogears-mode t)
+  (map!
+   "C-x -" #'dogears-back
+   "C-x _" #'dogears-forward
+   "M-g d" #'dogears-go
+   "M-g M-b" #'dogears-back
+   "M-g M-f" #'dogears-forward
+   "M-g M-d" #'dogears-list
+   "M-g M-D" #'dogears-sidebar
+   )
+  )
+
+(use-package! popper
+  :bind (("C-`"   . popper-toggle-latest)
+         ("M-`"   . popper-cycle)
+         ("C-M-`" . popper-toggle-type))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          help-mode
+          compilation-mode))
+  (setq popper-group-function #'popper-group-by-projectile)
+  ;; (setq popper-display-function #'display-buffer-in-child-frame)
+  (popper-mode +1)
+  (popper-echo-mode +1))
+
 
 ;; org mode configuration
-(setq org-directory "~/Dropbox/org/") ; let's put files here
+(setq org-directory "~/projects/org/") ; let's put files here
 (when (display-graphic-p) (load! "+org"))
 
 ;; ejc-sql
@@ -367,6 +465,36 @@
 
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")
+
+(use-package! dired-subtree
+  :after dired
+  :bind (:map dired-mode-map
+         ("TAB" . dired-subtree-toggle)))
+
+(use-package! zk
+  :custom
+  (zk-directory "~/zkdir")
+  (zk-file-extension "md")
+  :config
+  ;; (require 'zk-consult)
+  (zk-setup-auto-link-buttons)
+  (zk-setup-embark)
+  (setq zk-tag-grep-function #'zk-consult-grep-tag-search
+        zk-grep-function #'zk-consult-grep)
+  (add-hook 'completion-at-point-functions #'zk-completion-at-point 'append)
+)
+
+(flycheck-define-checker vale
+  "A checker for prose"
+  :command ("vale" "--output" "line"
+            source)
+  :standard-input nil
+  :error-patterns
+  ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
+  :modes (markdown-mode org-mode text-mode)
+  )
+(add-to-list 'flycheck-checkers 'vale 'append)
+
 
 ;; Useful Functions
 ;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)

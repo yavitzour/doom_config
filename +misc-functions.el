@@ -20,6 +20,7 @@
       (message "%s copied" new-kill-string)
       (kill-new new-kill-string))))
 
+
 ;; comments - https://stackoverflow.com/a/9697222/14042240
 (defun comment-or-uncomment-region-or-line ()
   "Comments or uncomments the region or the current line if there's no active region."
@@ -33,6 +34,7 @@
     )
   )
 
+
 ;; backword-kill-word if no region active
 (defun obar/kill-region-or-backward-word ()
   "Kill region if active, else backword-kill-word"
@@ -40,6 +42,7 @@
   (if (region-active-p)
       (kill-region (region-beginning) (region-end))
     (backward-kill-word 1)))
+
 
 ;; Capitalize, upcase and downcase word-at-point for real. Taken from
 ;; https://christiantietze.de/posts/2021/03/change-case-of-word-at-point
@@ -62,9 +65,11 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
       (funcall callback $p1 $p2))
     (list $p1 $p2)))
 
+
 (defun ct/capitalize-region (p1 p2)
   (downcase-region p1 p2)
   (upcase-initials-region p1 p2))
+
 
 (defun ct/capitalize-word-at-point ()
   (interactive)
@@ -74,18 +79,22 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
 ;;   (interactive)
 ;;   (ct/word-boundary-at-point-or-region #'upcase-initials-region))
 
+
 (defun ct/downcase-word-at-point ()
   (interactive)
   (ct/word-boundary-at-point-or-region #'downcase-region))
+
 
 (defun ct/upcase-word-at-point ()
   (interactive)
   (ct/word-boundary-at-point-or-region #'upcase-region))
 
+
 (defun align-non-space (BEG END)
   "Align non-space columns in region BEG END."
   (interactive "r")
   (align-regexp BEG END "\\(\\s-*\\)\\S-+" 1 1 t))
+
 
 (defun recenter-correctly ()
   "don't scroll beyond end of file and show line #"
@@ -104,6 +113,7 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
       (recenter)))
   (what-line))
 
+
 (defun search-specific-glob ()
   "Example for using counsel-projectile-rg to search only within certain extensions"
   (interactive)
@@ -114,11 +124,13 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
                                                "*.css"))))
     (counsel-projectile-rg (concat "--glob " glob))))
 
+
 (defun projectile-search-py ()
   "Use counsel-projectile-rg to search only .py files"
   (interactive)
   (let ((glob (ivy-completing-read "Glob?: " '("*.py"))))
     (counsel-projectile-rg (concat "--glob " glob))))
+
 
 (defun my/vterm-execute-current-line ()
   "Insert text of current line in vterm and execute."
@@ -143,3 +155,42 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
       (vterm-send-return)
       (switch-to-buffer-other-window buf)
       )))
+
+
+(defun ediff-compare-region-clipboard (begin end)
+  (interactive "r")
+  (save-excursion
+    (let ((selected-region (buffer-substring begin end))
+          (clipboard-buffer (get-buffer-create "*ediff-clipboard*"))
+          (region-buffer (get-buffer-create "*ediff-region*")))
+      (with-current-buffer clipboard-buffer
+        (insert (car kill-ring)))
+      (with-current-buffer region-buffer
+        (insert selected-region))
+      (ediff-buffers clipboard-buffer region-buffer))))
+
+
+(defun notify-compilation-result(buffer msg)
+  "Notify that the compilation is finished,
+close the *compilation* buffer if the compilation is successful,
+and set the focus back to Emacs frame"
+  (if (string-match "^finished" msg)
+    (progn
+     (delete-windows-on buffer)
+     (tooltip-show "\n Compilation Successful :-) \n "))
+    (tooltip-show "\n Compilation Failed :-( \n "))
+  (setq current-frame (car (car (cdr (current-frame-configuration)))))
+  (select-frame-set-input-focus current-frame)
+  )
+
+(add-to-list 'compilation-finish-functions
+             'notify-compilation-result)
+
+
+(defun kill-buffer-other-window ()
+  "Kill buffer in the other window."
+  (interactive)
+  (other-window 1)
+  (kill-buffer (current-buffer))
+  (other-window 1)
+  (delete-other-windows))

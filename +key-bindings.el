@@ -2,8 +2,10 @@
 
 (map!
  "M-;" #'comment-or-uncomment-region-or-line
- "C-x F" #'find-file-at-point
- "C-x 4 F" #'ffap-other-window
+ ;; "C-x F" #'find-file-at-point
+ ;; "C-x 4 F" #'ffap-other-window
+ "C-x F" #'projectile-find-file-dwim
+ "C-x 4 F" #'projectile-find-file-dwim-other-window
  "<f2>" #'next-error
  "S-<f2>" #'previous-error
  "C-w" #'obar/kill-region-or-backward-word
@@ -13,7 +15,8 @@
  "M-l" #'ct/downcase-word-at-point
  "C-z" #'zap-up-to-char
  "C-l" #'recenter-correctly
- )
+ "C-x 4 k" #'kill-buffer-other-window
+)
 
 (fset     'my-cmds-prefix (make-sparse-keymap))
 (defconst  my-cmds-map    (symbol-function 'my-cmds-prefix))
@@ -60,3 +63,8 @@
       "\C-w"     #'kill-word
       "\C-x"     #'kill-rectangle
       )
+
+(map! :map minibuffer-local-map
+      "C-,"      #'embark-act
+      "C-."      #'embark-collect-snapshot
+      "C->"      #'embark-become)
