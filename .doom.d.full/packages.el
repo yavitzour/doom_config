@@ -142,3 +142,5 @@
            :repo "localauthor/zk"
            )
   )
+
+(package! svg-tag-mode)

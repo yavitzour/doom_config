@@ -35,6 +35,9 @@
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
 (setq display-line-numbers-type t)
 
+;; Directory of emacs functions and code shared with doom-full
+(defvar my-doom-common-dir "~/.doom.d.common")
+
 ;; Do not confirm on quit
 (setq confirm-kill-emacs nil)
 
