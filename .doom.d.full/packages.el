@@ -144,3 +144,5 @@
   )
 
 (package! svg-tag-mode)
+
+(package! howm)

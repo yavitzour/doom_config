@@ -170,18 +170,28 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
       (ediff-buffers clipboard-buffer region-buffer))))
 
 
+;; (defun notify-compilation-result(buffer msg)
+;;   "Notify that the compilation is finished,
+;; close the *compilation* buffer if the compilation is successful,
+;; and set the focus back to Emacs frame"
+;;   (if (string-match "^finished" msg)
+;;     (progn
+;;      (delete-windows-on buffer)
+;;      (tooltip-show "\n Compilation Successful :-) \n "))
+;;     (tooltip-show "\n Compilation Failed :-( \n "))
+;;   (setq current-frame (car (car (cdr (current-frame-configuration)))))
+;;   (select-frame-set-input-focus current-frame)
+;;   )
+
 (defun notify-compilation-result(buffer msg)
-  "Notify that the compilation is finished,
-close the *compilation* buffer if the compilation is successful,
-and set the focus back to Emacs frame"
-  (if (string-match "^finished" msg)
-    (progn
-     (delete-windows-on buffer)
-     (tooltip-show "\n Compilation Successful :-) \n "))
-    (tooltip-show "\n Compilation Failed :-( \n "))
-  (setq current-frame (car (car (cdr (current-frame-configuration)))))
-  (select-frame-set-input-focus current-frame)
-  )
+  "Notify that the compilation is finished.
+Close BUFFER if the compilation is MSG has finished."
+(if (string-match "^finished" msg)
+      (progn
+        (delete-windows-on buffer)
+        (message "No Compilation Errors!")
+        )))
+
 
 (add-to-list 'compilation-finish-functions
              'notify-compilation-result)

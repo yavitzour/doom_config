@@ -517,5 +517,47 @@
 ; //swiftlint:disable hello
 
 
+;; CPP
+(defvar my-cpp-other-file-alist
+  '(("\\.cpp\\'" (".h" ".hpp"))
+    ("\\.c\\'" (".h"))
+    ("\\.h\\'" (".cpp" ".c"))
+    ))
+(defvar my-cpp-search-directories-list
+  '("." "../src" "../include")
+  )
+(setq-default ff-search-directories 'my-cpp-search-directories-list)
+(setq-default ff-other-file-alist 'my-cpp-other-file-alist)
+(map! :map c-mode-base-map
+      "M-o" #'ff-get-other-file)
+
+
+(use-package! howm
+  :init
+  ;; Directory configuration
+  (setq howm-home-directory "~/howm/")
+  (setq howm-directory "~/howm/")
+  (setq howm-keyword-file (expand-file-name ".howm-keys" howm-home-directory))
+  (setq howm-history-file (expand-file-name ".howm-history" howm-home-directory))
+  (setq howm-file-name-format "%Y/%m/%Y-%m-%d-%H%M%S.md")
+
+  ;; Use ripgrep as grep
+  (setq howm-view-use-grep t)
+  (setq howm-view-grep-command "rg")
+  (setq howm-view-grep-option "-nH --no-heading --color never")
+  (setq howm-view-grep-extended-option nil)
+  (setq howm-view-grep-fixed-option "-F")
+  (setq howm-view-grep-expr-option nil)
+  (setq howm-view-grep-file-stdin-option nil)
+  (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
+  (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
+
+  ;; Fix howm setting C-h
+  :config
+  (define-key howm-menu-mode-map "\C-h" nil)
+  (define-key riffle-summary-mode-map "\C-h" nil)
+  (define-key howm-view-contents-mode-map "\C-h" nil)
+)
+
 ;; Useful Functions
 ;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)
