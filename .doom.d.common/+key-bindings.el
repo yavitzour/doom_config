@@ -68,3 +68,16 @@
       "C-,"      #'embark-act
       "C-."      #'embark-collect-snapshot
       "C->"      #'embark-become)
+
+(map! "<f5>" #'+vterm/toggle
+      :map vterm-mode-map
+      "<f5>" #'+vterm/toggle)
+
+;;; Add matlab-like behavior to comint base modes (shell, python-shell)
+(map! :map comint-mode-map
+      "M-<up>" #'comint-previous-matching-input-from-input
+      "M-<down>" #'comint-next-matching-input-from-input
+      )
+
+(provide '+key-binding)
+;;; +key-bindings.el ends here

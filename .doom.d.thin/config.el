@@ -57,3 +57,10 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+
+
+(load! "common_config" my-doom-common-dir)
+
+(load! "+misc-functions" my-doom-common-dir)
+
+(load! "+key-bindings" my-doom-common-dir)

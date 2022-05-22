@@ -72,7 +72,7 @@
 (package! modus-themes
   :recipe (:host gitlab
            :repo "protesilaos/modus-themes"
-)
+           )
   :pin "e02480f0b0a56b8575351db6504bf0d0417719ad"
 )
 

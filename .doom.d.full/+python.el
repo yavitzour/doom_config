@@ -100,6 +100,18 @@ Lists the object's non-method fields and their respective current values."
 
 (add-hook 'python-mode-hook 'pyvenv-autoload)
 
+(defun set-lsp-python-ms-extra-paths ()
+  (interactive)
+  (setq lsp-python-ms-extra-paths ["."])
+  (if (buffer-file-name)
+      (aset lsp-python-ms-extra-paths 0
+            (file-name-directory (buffer-file-name)))
+    (aset lsp-python-ms-extra-paths 0
+          default-directory))
+  )
+
+(add-hook! 'python-mode-hook 'set-lsp-python-ms-extra-paths)
+
 (use-package! importmagic
   :config
   (add-hook! 'python-mode-hook 'importmagic-mode)
@@ -128,4 +140,7 @@ Lists the object's non-method fields and their respective current values."
 
 (use-package! python-mls
   :config
-  (python-mls-setup))
+  (python-mls-setup)
+  :bind (:map python-mls-mode-map
+         ("C-x <up>" . my-previous-line))
+  )

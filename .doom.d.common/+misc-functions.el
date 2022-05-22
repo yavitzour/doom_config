@@ -2,6 +2,8 @@
 
 ;; Collection of miscellaneous functions I collected from various places
 
+;;; Code
+
 (defun copy-buffer-file-name-as-kill (choice)
   "Copy the buffer-file-name to the kill-ring"
   (interactive "cCopy Buffer Name (f) Full, (d) Directory, (n) Name")
@@ -186,16 +188,14 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
 (defun notify-compilation-result(buffer msg)
   "Notify that the compilation is finished.
 Close BUFFER if the compilation is MSG has finished."
-(if (string-match "^finished" msg)
+  (if (string-match "^finished" msg)
       (progn
         (delete-windows-on buffer)
         (message "No Compilation Errors!")
         )))
 
-
 (add-to-list 'compilation-finish-functions
              'notify-compilation-result)
-
 
 (defun kill-buffer-other-window ()
   "Kill buffer in the other window."
@@ -204,3 +204,21 @@ Close BUFFER if the compilation is MSG has finished."
   (kill-buffer (current-buffer))
   (other-window 1)
   (delete-other-windows))
+
+(defun dired-dim-git-ignores ()
+  "Dim out .gitignore contents."
+  (when-let ((_ (require 'vc))
+             (ignores (vc-default-ignore-completion-table 'git ".gitignore"))
+             (exts (make-local-variable 'completion-ignored-extensions)))
+    (dolist (item ignores) (add-to-list exts item))))
+
+(add-hook! 'dired-mode-hook #'dired-dim-git-ignores)
+
+(defun my-previous-line ()
+  "Re-Implemetation of 'previous-line' to circumvent python-mls override of 'previous-line'."
+  (interactive)
+  (forward-line -1))
+
+
+(provide '+misc-functions)
+;;; +misc-functions.el ends here
