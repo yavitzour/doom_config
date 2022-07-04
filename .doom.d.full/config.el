@@ -23,13 +23,13 @@
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
 ;; (setq doom-font (font-spec :family "monospace" :size 14))
-;; (setq doom-font (font-spec :family "SourceCodePro" :size 14))
+(setq doom-font (font-spec :family "SourceCodePro"))
 ;; (setq doom-font (font-spec :family "Consolas" :size 14))
 ;; (setq doom-font (font-spec :family "Hack" :size 14))
-;; (setq doom-font (font-spec :family "DejaVuSansMono" :size 14))
-(setq doom-font (font-spec :family "OfficeCodePro" :size 15)
-      doom-variable-pitch-font (font-spec :family "Ubuntu" :size 15)
-      doom-big-font (font-spec :family "OfficeCodePro" :size 20))
+;; (setq doom-font (font-spec :family "DejaVuSansMono" :size 13))
+;; (setq doom-font (font-spec :family "Hack")
+;;       doom-variable-pitch-font (font-spec :family "Ubuntu" :size 15)
+;;       doom-big-font (font-spec :family "OfficeCodePro" :size 20))
 ;; (setq doom-font (font-spec :family "Consolas" :size 13))
 ;; (setq-default line-spacing 1)
 
@@ -175,11 +175,12 @@
 ;; (map! :map prog-mode-map
 ;;       "<C-return>" #'+fold/toggle)
 
-(use-package! tree-sitter
-  :config
-  (require 'tree-sitter-langs)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+;; (use-package! tree-sitter
+;;   :config
+;;   (require 'tree-sitter-langs)
+;;   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(global-tree-sitter-mode t)
 
 
 ;; pyright - requires new nodejs - next ubuntu?
@@ -196,11 +197,11 @@
   ;;       lsp-enable-file-watchers nil
   ;;       lsp-enable-symbol-highlighting nil)
   (setq lsp-headerline-breadcrumb-segments '(project path-up-to-project file symbols))
-  (lsp-headerline-breadcrumb-mode )
+  (lsp-headerline-breadcrumb-mode t)
 
   ;; UI settings
-  ;; (setq lsp-ui-doc-enable nil)
-  ;; (setq lsp-ui-doc-header t)
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-header t)
   ;; (setq lsp-ui-doc-include-signature t)
   ;; (setq lsp-ui-doc-border (face-foreground 'default))
   ;; (setq lsp-ui-sideline-show-code-actions t)
@@ -209,7 +210,7 @@
   ;; Other settings
   ;; (setq lsp-auto-guess-root t)
   ;; (setq lsp-log-io nil)
-  ;; (setq lsp-restart 'auto-restart)
+  (setq lsp-restart 'auto-restart)
   ;; (setq lsp-enable-symbol-highlighting nil)
   ;; (setq lsp-enable-on-type-formatting nil)
   ;; (setq lsp-signature-auto-activate nil)
@@ -217,7 +218,7 @@
   ;; (setq lsp-eldoc-hook nil)
   ;; (setq lsp-modeline-code-actions-enable nil)
   ;; (setq lsp-modeline-diagnostics-enable nil)
-  ;; (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-headerline-breadcrumb-enable t)
   ;; (setq lsp-semantic-tokens-enable nil)
   ;; (setq lsp-enable-folding nil)
   ;; (setq lsp-enable-imenu nil)
@@ -411,7 +412,7 @@
   ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
   :modes (markdown-mode org-mode text-mode)
   )
-(add-to-list 'flycheck-checkers 'vale 'append)
+;; (add-to-list 'flycheck-checkers 'vale 'append)
 
 (use-package! svg-tag-mode
   :hook ((prog-mode . svg-tag-mode)

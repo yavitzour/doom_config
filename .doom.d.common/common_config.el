@@ -70,8 +70,8 @@
   (prog-mode . yafolding-mode)
   )
 
-(after! highlight-indent-guides
-  (highlight-indent-guides-auto-set-faces))
+;; (after! highlight-indent-guides
+;;   (highlight-indent-guides-auto-set-faces))
 
 (use-package! winnow
   :hook

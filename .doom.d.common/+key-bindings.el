@@ -16,6 +16,7 @@
  "C-z" #'zap-up-to-char
  "C-l" #'recenter-correctly
  "C-x 4 k" #'kill-buffer-other-window
+ "C-c t t" #'treemacs
 )
 
 (fset     'my-cmds-prefix (make-sparse-keymap))
@@ -78,6 +79,8 @@
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input
       )
+
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
 
 (provide '+key-binding)
 ;;; +key-bindings.el ends here

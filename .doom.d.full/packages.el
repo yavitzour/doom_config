@@ -59,10 +59,6 @@
 
 (package! goto-chg)
 
-(package! tree-sitter)
-
-(package! tree-sitter-langs)
-
 (package! winnow)
 
 (package! heaven-and-hell)
