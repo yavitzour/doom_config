@@ -2,7 +2,7 @@
 
 ;; Collection of miscellaneous functions I collected from various places
 
-;;; Code
+;;; Code:
 
 (defun copy-buffer-file-name-as-kill (choice)
   "Copy the buffer-file-name to the kill-ring"

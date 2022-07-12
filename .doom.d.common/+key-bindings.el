@@ -17,7 +17,8 @@
  "C-l" #'recenter-correctly
  "C-x 4 k" #'kill-buffer-other-window
  "C-c t t" #'treemacs
-)
+ [remap dabbrev-expand] #'hippie-expand
+ )
 
 (fset     'my-cmds-prefix (make-sparse-keymap))
 (defconst  my-cmds-map    (symbol-function 'my-cmds-prefix))
@@ -67,20 +68,22 @@
 
 (map! :map minibuffer-local-map
       "C-,"      #'embark-act
-      "C-."      #'embark-collect-snapshot
+      "C-."      #'embark-collect
       "C->"      #'embark-become)
 
 (map! "<f5>" #'+vterm/toggle
       :map vterm-mode-map
       "<f5>" #'+vterm/toggle)
 
-;;; Add matlab-like behavior to comint base modes (shell, python-shell)
+;;; Add matlab-like behavior to comint based modes (shell, python-shell)
 (map! :map comint-mode-map
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input
       )
 
-(global-set-key [remap dabbrev-expand] 'hippie-expand)
+(map! :map python-mls-mode-map
+      "C-x <up>" "'my-previous-line"
+      )
 
-(provide '+key-binding)
+(provide '+key-bindings)
 ;;; +key-bindings.el ends here

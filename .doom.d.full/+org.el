@@ -42,19 +42,6 @@
       (cl-pushnew (cons (format "jupyter-%s" lang) lang)
                   org-src-lang-modes :key #'car)))
 
-  ;; (setq org-capture-templates nil)
-  ;; (setq org-capture-templates
-  ;;       `(("i" "Inbox" entry  (file "inbox.org")
-  ;;          ,(concat "* TODO %?\n"
-  ;;                   "/Entered on/ %U"))
-  ;;         ("m" "Meeting" entry  (file+headline "agenda.org" "Future")
-  ;;          ,(concat "* %? :meeting:\n"
-  ;;                   "<%<%Y-%m-%d %a %H:00>>"))
-  ;;         ("n" "Note" entry  (file "notes.org")
-  ;;          ,(concat "* Note (%a)\n"
-  ;;                   "/Entered on/ %U\n" "\n" "%?"))
-  ;;         ))
-
   (add-to-list 'org-capture-templates
                '("i" "Inbox" entry (file "inbox.org")
                  "* TODO %?\n/Entered on/ %U"))
@@ -75,13 +62,6 @@
       (org-entry-put nil "ACTIVATED" (format-time-string "[%Y-%m-%d]"))))
   (add-hook 'org-after-todo-state-change-hook #'log-todo-next-creation-date)
 
-  (defun org-capture-inbox ()
-    (interactive)
-    (call-interactively 'org-store-link)
-    (org-capture nil "i"))
-
-  ;; (define-key global-map (kbd "C-c i") 'org-capture-inbox)
-
   ;; have list bullets change with depth
   (setq org-list-demote-modify-bullet '(("+" . "-") ("-" . "+") ("*" . "+") ("1." . "a.")))
 
@@ -93,137 +73,3 @@
   ;; # -*- buffer-auto-save-file-name: nil; -*-
   )
 
-(after! org-agenda
-  ;; Aaron Harris's solution for skip-by-tag (https://stackoverflow.com/a/33444799/14042240)
-  (defun my/org-match-at-point-p (match)
-    "Return non-nil if headline at point matches MATCH.
-     Here MATCH is a match string of the same format used by `org-tags-view'."
-    (funcall (cdr (org-make-tags-matcher match))
-             (org-get-todo-state)
-             (org-get-tags-at)
-             (org-reduced-level (org-current-level))))
-
-  (defun my/org-agenda-skip-without-match (match)
-    "Skip current headline unless it matches MATCH.
-     Return nil if headline containing point matches MATCH (which
-     should be a match string of the same format used by
-     `org-tags-view').  If headline does not match, return the
-     position of the next headline in current buffer.
-     Intended for use with `org-agenda-skip-function', where this will
-     skip exactly those headlines that do not match."
-    (save-excursion
-      (unless (org-at-heading-p) (org-back-to-heading))
-      (let ((next-headline (save-excursion
-                             (or (outline-next-heading) (point-max)))))
-        (if (my/org-match-at-point-p match) nil next-headline))))
-
-  (setq org-agenda-block-separator nil
-        org-agenda-compact-blocks t
-        org-agenda-include-deadlines t
-        org-agenda-show-all-dates nil
-        org-agenda-skip-deadline-if-done t
-        org-agenda-skip-deadline-if-done t
-        org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled
-        org-agenda-skip-scheduled-if-deadline-is-shown t
-        org-agenda-skip-scheduled-if-done t
-        org-agenda-skip-scheduled-if-done t
-        org-agenda-span 1
-        org-agenda-start-day nil ;; i.e. today
-        org-agenda-start-on-weekday nil
-        org-agenda-tags-todo-honor-ignore-options t
-        org-agenda-todo-ignore-deadlines 'far
-        org-agenda-todo-ignore-scheduled 'all
-        org-agenda-todo-list-sublevels t
-        org-agenda-window-setup 'reorganize-frame
-        org-agenda-prefix-format '((agenda . " %i %-12:c%?-12t% s")
-                                   (todo   . " ")
-                                   (tags   . " %i %-12:c")
-                                   (search . " %i %-12:c"))
-        org-agenda-sorting-strategy '((agenda time-up priority-down todo-state-up tag-up alpha-up)
-                                      (todo priority-down todo-state-up tag-up alpha-up)
-                                      (tags priority-down todo-state-up tag-up alpha-up)))
-
-
-  ;; Place tags at the right hand side of the window
-  (add-hook 'org-finalize-agenda-hook 'place-agenda-tags)
-  (defun place-agenda-tags ()
-    "Put the agenda tags by the right border of the agenda window."
-    (setq org-agenda-tags-column (- 4 (window-width)))
-    (org-agenda-align-tags))
-
-  (defvar nox-org-agenda-file "")
-  ;; org-agenda
-  (setq org-agenda-custom-commands
-        '(("n" "Agenda"
-           ((agenda "" ((org-agenda-files (list org-default-notes-file nox-org-agenda-file))
-                        (org-agenda-span 3)))
-            (+agenda-inbox nil ((org-agenda-files (list org-default-notes-file))))
-            (+agenda-tasks)))
-          ("g" "Get Things Done (GTD)"
-           (
-            ;; (agenda ""
-            ;;         ((org-agenda-skip-function
-            ;;           '(org-agenda-skip-entry-if 'deadline))
-            ;;          (org-deadline-warning-days 0)))
-            (agenda nil)
-            (todo "STRT"
-                  ((org-agenda-skip-function
-                    '(org-agenda-skip-entry-if 'deadline))
-                   (org-agenda-prefix-format "  %i %-12:c [%e] ")
-                   (org-agenda-overriding-header "\nStarted Tasks\n")))
-            (todo "TODO"
-                  (
-                   (org-agenda-skip-function
-                    '(my/org-agenda-skip-without-match "-inbox"))
-                   (org-agenda-prefix-format "  %i %-12:c [%e] ")
-                   (org-agenda-overriding-header "\nTODO Tasks\n")))
-            ;; (agenda nil
-            ;;         ((org-agenda-entry-types '(:deadline))
-            ;;          (org-agenda-format-date "")
-            ;;          (org-deadline-warning-days 7)
-            ;;          (org-agenda-skip-function
-            ;;           '(org-agenda-skip-entry-if 'notregexp "\\* NEXT"))
-            ;;          (org-agenda-overriding-header "\nDeadlines")))
-            (tags-todo "inbox"
-                       ((org-agenda-prefix-format "  %?-12t% s")
-                        (org-agenda-overriding-header "\nInbox\n")))
-            (tags "CLOSED>=\"<today>\""
-                  ((org-agenda-overriding-header "\nCompleted today\n")))))
-          ("c" "Super view"
-           ((agenda "" ((org-agenda-overriding-header "")
-                        (org-super-agenda-groups
-                         '((:name "Today"
-                            :time-grid t
-                            :date today
-                            :order 1)))))
-            (alltodo "" ((org-agenda-overriding-header "")
-                         (org-super-agenda-groups
-                          '((:log t)
-                            (:name "To refile"
-                             :file-path "refile\\.org")
-                            (:name "Next to do"
-                             :todo "NEXT"
-                             :order 1)
-                            (:name "Important"
-                             :priority "A"
-                             :order 6)
-                            (:name "Today's tasks"
-                             :file-path "journal/")
-                            (:name "Due Today"
-                             :deadline today
-                             :order 2)
-                            (:name "Scheduled Soon"
-                             :scheduled future
-                             :order 8)
-                            (:name "Overdue"
-                             :deadline past
-                             :order 7)
-                            (:name "Meetings"
-                             :and (:todo "MEET" :scheduled future)
-                             :order 10)
-                            (:discard (:not (:todo "TODO")))))))))))
-
-  (org-super-agenda-mode)
-
-  (load! "+org-agenda-functions")
-  )
