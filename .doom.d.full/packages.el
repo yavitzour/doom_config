@@ -142,3 +142,9 @@
 (package! svg-tag-mode)
 
 (package! howm)
+
+(package! dirvish)
+
+(package! transpose-frame)
+
+(package! pet)

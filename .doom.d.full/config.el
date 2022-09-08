@@ -451,7 +451,7 @@
       "M-o" #'ff-get-other-file)
 
 (setq-default c-default-style "linux"
-             c-basic-offset 4)
+              c-basic-offset 4)
 
 (setq-hook! '(c-mode-hook c++-mode-hook) tab-width 4)
 (setq-hook! '(c-mode-hook c++-mode-hook) c-basic-offset 4)
@@ -481,6 +481,26 @@
   (define-key howm-menu-mode-map "\C-h" nil)
   (define-key riffle-summary-mode-map "\C-h" nil)
   (define-key howm-view-contents-mode-map "\C-h" nil)
+)
+
+;; Compilation tweaks
+(setq compilation-environment '("TERM=tmux-256color"))
+(setq compilation-max-output-line-length nil)
+(defun my/advice-compilation-filter (f proc string)
+  (funcall f proc (ansi-color-apply string)))
+(advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+(advice-add 'compilation-filter :after #'my/advice-compilation-filter)
+
+(add-hook 'compilation-mode-hook
+  (lambda ()
+    (setq-local compilation-scroll-output t)
+    (setq-local scroll-conservatively most-positive-fixnum)
+    (setq-local scroll-margin 0)))
+
+
+(use-package! dirvish
+  :config
+  (dirvish-override-dired-mode)
 )
 
 ;; Useful Functions

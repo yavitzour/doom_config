@@ -70,47 +70,77 @@ Lists the object's non-method fields and their respective current values."
       "M-<up>" #'comint-previous-matching-input-from-input
       "M-<down>" #'comint-next-matching-input-from-input)
 
-(use-package! pyvenv
-  :config
-  (pyvenv-mode 1)
+;; (use-package! pyvenv
+;;   :config
+;;   (pyvenv-mode 1)
 
-  ;; ;; Set correct Python interpreter
-  ;; (setq pyvenv-post-activate-hooks
-  ;;       (list (lambda ()
-  ;;               (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
-  ;; (setq pyvenv-post-deactivate-hooks
-  ;;       (list (lambda ()
-  ;;               (setq python-shell-interpreter "python"))))
-  )
+;;   ;; ;; Set correct Python interpreter
+;;   ;; (setq pyvenv-post-activate-hooks
+;;   ;;       (list (lambda ()
+;;   ;;               (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python")))))
+;;   ;; (setq pyvenv-post-deactivate-hooks
+;;   ;;       (list (lambda ()
+;;   ;;               (setq python-shell-interpreter "python"))))
+;;   )
 
-(defun pyvenv-autoload ()
-  (interactive)
-  "auto activate venv/env directory if exists"
-  (setq venv-patterns '("venv" "env"))
-  (dolist (venv venv-patterns)
-    (f-traverse-upwards (lambda (path)
-                          (let ((venv-path (f-expand venv path)))
-                            (when (f-exists? venv-path)
-                              (progn (message venv-path)
-                                     (pyvenv-activate venv-path))
-                              ))))
-    )
-  )
+;; (defun pyvenv-autoload ()
+;;   (interactive)
+;;   "auto activate venv/env directory if exists"
+;;   (setq venv-patterns '("venv" "env"))
+;;   (dolist (venv venv-patterns)
+;;     (f-traverse-upwards (lambda (path)
+;;                           (let ((venv-path (f-expand venv path)))
+;;                             (when (f-exists? venv-path)
+;;                               (progn (message venv-path)
+;;                                      (pyvenv-activate venv-path))
+;;                               ))))
+;;     )
+;;   )
 
 
-(add-hook 'python-mode-hook 'pyvenv-autoload)
+;; (add-hook! 'python-mode-hook 'pyvenv-autoload)
+
+;; (defun set-lsp-python-ms-extra-paths ()
+;;   (interactive)
+;;   (setq lsp-python-ms-extra-paths ["."])
+;;   (if (buffer-file-name)
+;;       (aset lsp-python-ms-extra-paths 0
+;;             (file-name-directory (buffer-file-name)))
+;;     (aset lsp-python-ms-extra-paths 0
+;;           default-directory))
+;;   )
 
 (defun set-lsp-python-ms-extra-paths ()
   (interactive)
-  (setq lsp-python-ms-extra-paths ["."])
-  (if (buffer-file-name)
-      (aset lsp-python-ms-extra-paths 0
-            (file-name-directory (buffer-file-name)))
-    (aset lsp-python-ms-extra-paths 0
-          default-directory))
+  (setq lsp-python-ms-extra-paths
+        (vector
+         (if (buffer-file-name)
+             (file-name-directory (buffer-file-name))
+           default-directory)
+         )
+        )
   )
 
 (add-hook! 'python-mode-hook 'set-lsp-python-ms-extra-paths)
+
+(defun toggle-lsp-python-ms-extra-paths ()
+  (interactive)
+  (if (length> lsp-python-ms-extra-paths 0)
+      (progn
+        (setq lsp-python-ms-extra-paths [])
+        (lsp-restart-workspace)
+        (message "%s" lsp-python-ms-extra-paths)
+        )
+    (progn
+      (set-lsp-python-ms-extra-paths)
+      (lsp-restart-workspace)
+      (message "%s" lsp-python-ms-extra-paths)
+      )
+    )
+  )
+
+(map! :map python-mode-map
+      "C-c t e" #'toggle-lsp-python-ms-extra-paths)
 
 (use-package! importmagic
   :config
@@ -144,3 +174,8 @@ Lists the object's non-method fields and their respective current values."
   :bind (:map python-mls-mode-map
          ("C-x <up>" . my-previous-line))
   )
+
+(use-package! pet)
+
+(add-hook! 'python-mode-hook 'pet-mode)
+(add-hook! 'python-mode-hook 'pet-flycheck-setup)

@@ -82,7 +82,7 @@
       )
 
 (map! :map python-mls-mode-map
-      "C-x <up>" "'my-previous-line"
+      "C-x <up>" #'my-previous-line
       )
 
 (provide '+key-bindings)
