@@ -11,7 +11,7 @@
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
-;; https://github.com/raxod502/straight.el#the-recipe-format
+;; https://github.com/radian-software/straight.el#the-recipe-format
 ;(package! another-package
 ;  :recipe (:host github :repo "username/repo"))
 
@@ -34,7 +34,7 @@
 
 ;; Specify a `:branch' to install a package from a particular branch or tag.
 ;; This is required for some packages whose default branch isn't 'master' (which
-;; our package manager can't deal with; see raxod502/straight.el#279)
+;; our package manager can't deal with; see radian-software/straight.el#279)
 ;(package! builtin-package :recipe (:branch "develop"))
 
 ;; Use `:pin' to specify a particular commit to install.
@@ -69,8 +69,14 @@
   :recipe (:host gitlab
            :repo "protesilaos/modus-themes"
            )
-  :pin "e02480f0b0a56b8575351db6504bf0d0417719ad"
+  ;; :pin "e02480f0b0a56b8575351db6504bf0d0417719ad"
 )
+
+(package! ef-themes
+  :recipe (:host gitlab
+           :repo "protesilaos/ef-themes"
+           )
+  )
 
 (package! exec-path-from-shell)
 
@@ -90,9 +96,9 @@
 
 (package! easy-kill)
 
-(package! peep-dired)
-
-(package! sunrise-commander :recipe (:host github :repo "sunrise-commander/sunrise-commander"))
+(package! sunrise-commander
+  :recipe (:host github
+           :repo "sunrise-commander/sunrise-commander"))
 
 (package! org-jira)
 
@@ -128,23 +134,28 @@
 
 (package! popper)
 
+(package! peep-dired)
 (package! dired-subtree)
 
 (package! python-mls)
 
-(package! zk
-  :recipe (
-           :host github
-           :repo "localauthor/zk"
-           )
-  )
-
 (package! svg-tag-mode)
-
-(package! howm)
-
-(package! dirvish)
 
 (package! transpose-frame)
 
 (package! pet)
+
+(package! mode-minder
+  :recipe (
+           :host github
+           :repo "jdtsmith/mode-minder")
+)
+
+(package! sqlformat)
+
+(package! writegood-mode
+  :recipe (
+           :host github
+                 :repo "bnbeckwith/writegood-mode"
+                 )
+  )

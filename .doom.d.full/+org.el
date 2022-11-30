@@ -48,6 +48,9 @@
   (add-to-list 'org-capture-templates
                '("n" "Note" entry (file "notes.org")
                  "* Note (%a)\n/Entered on/ %U\n" "\n" "%?"))
+  (add-to-list 'org-capture-templates
+               '("j" "Journal" entry (file+datetree "journal.org")
+                 "* %?\n %i\n %a"))
 
   (setq org-refile-targets
         '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))

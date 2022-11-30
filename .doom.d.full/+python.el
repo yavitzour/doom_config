@@ -50,7 +50,8 @@ its value at the REPL."
     (goto-char initial-point)))
 
 (defun print-python-object-fields-in-repl ()
-  "Sends symbol at point to IPython REPL with the `ppretty' function defined in ipython_config.
+  "Sends symbol at point to IPython REPL with the `ppretty' function
+defined in ipython_config.
 Lists the object's non-method fields and their respective current values."
   (interactive)
   (let ((sym (symbol-at-point)))

@@ -110,7 +110,7 @@
        ;; modus-themes-section-headings t
        modus-themes-scale-headings t
        modus-themes-mode-line '3d
-       modus-themes-completions 'opinionated
+       ;; modus-themes-completions 'opinionated
        modus-themes-bold-constructs t
        ;; modus-themes-slanted-constructs t
        ;; modus-themes-intense-hl-line t
@@ -293,6 +293,14 @@
    :map org-mode-map
    "$" #'math-delimiters-insert)
   )
+(add-hook! org-mode :append
+           ;; #'visual-line-mode
+           ;; #'solaire-mode
+           ;; #'typopunct-mode
+           #'writegood-mode
+           ;; #'variable-pitch-mode
+           )
+
 
 (after! tex
   (map!
@@ -311,11 +319,6 @@
    ;; map TAB to ivy-partial-or-done. Two tabs restores the ivy-alt-done functionality
    "TAB" #'ivy-partial-or-done
    "C-w" #'ivy-yank-word))
-
-(use-package! peep-dired
-  :after dired
-  :bind (:map dired-mode-map
-         ("C-SPC" . peep-dired)))
 
 (use-package! find-file-rg
   :bind (("C-c C-f" . find-file-rg)
@@ -383,36 +386,17 @@
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")
 
+(use-package! peep-dired
+  :after dired
+  :bind (:map dired-mode-map
+         ("C-SPC" . peep-dired)))
+
 (use-package! dired-subtree
   :after dired
   :bind (:map dired-mode-map
          ("TAB" . dired-subtree-toggle)))
 
 (setq dired-kill-when-opening-new-dired-buffer t)
-
-(use-package! zk
-  :custom
-  (zk-directory "~/zkdir")
-  (zk-file-extension "md")
-  :config
-  ;; (require 'zk-consult)
-  (zk-setup-auto-link-buttons)
-  (zk-setup-embark)
-  (setq zk-tag-grep-function #'zk-consult-grep-tag-search
-        zk-grep-function #'zk-consult-grep)
-  (add-hook 'completion-at-point-functions #'zk-completion-at-point 'append)
-)
-
-(flycheck-define-checker vale
-  "A checker for prose"
-  :command ("vale" "--output" "line"
-            source)
-  :standard-input nil
-  :error-patterns
-  ((error line-start (file-name) ":" line ":" column ":" (id (one-or-more (not (any ":")))) ":" (message) line-end))
-  :modes (markdown-mode org-mode text-mode)
-  )
-;; (add-to-list 'flycheck-checkers 'vale 'append)
 
 (use-package! svg-tag-mode
   :hook ((prog-mode . svg-tag-mode)
@@ -456,33 +440,6 @@
 (setq-hook! '(c-mode-hook c++-mode-hook) tab-width 4)
 (setq-hook! '(c-mode-hook c++-mode-hook) c-basic-offset 4)
 
-(use-package! howm
-  :init
-  ;; Directory configuration
-  (setq howm-home-directory "~/howm/")
-  (setq howm-directory "~/howm/")
-  (setq howm-keyword-file (expand-file-name ".howm-keys" howm-home-directory))
-  (setq howm-history-file (expand-file-name ".howm-history" howm-home-directory))
-  (setq howm-file-name-format "%Y/%m/%Y-%m-%d-%H%M%S.md")
-
-  ;; Use ripgrep as grep
-  (setq howm-view-use-grep t)
-  (setq howm-view-grep-command "rg")
-  (setq howm-view-grep-option "-nH --no-heading --color never")
-  (setq howm-view-grep-extended-option nil)
-  (setq howm-view-grep-fixed-option "-F")
-  (setq howm-view-grep-expr-option nil)
-  (setq howm-view-grep-file-stdin-option nil)
-  (add-hook 'howm-mode-hook 'howm-mode-set-buffer-name)
-  (add-hook 'after-save-hook 'howm-mode-set-buffer-name)
-
-  ;; Fix howm setting C-h
-  :config
-  (define-key howm-menu-mode-map "\C-h" nil)
-  (define-key riffle-summary-mode-map "\C-h" nil)
-  (define-key howm-view-contents-mode-map "\C-h" nil)
-)
-
 ;; Compilation tweaks
 (setq compilation-environment '("TERM=tmux-256color"))
 (setq compilation-max-output-line-length nil)
@@ -498,10 +455,35 @@
     (setq-local scroll-margin 0)))
 
 
-(use-package! dirvish
+(use-package! sqlformat
+  ;; :ensure-system-package (pg_format . "sudo apt install pgformatter")
+  :defer t
   :config
-  (dirvish-override-dired-mode)
-)
+  (setq sqlformat-command 'pgformatter)
+  (setq sqlformat-args '("-s2" "-g"))
+  (add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
+  (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
+(after! sql-indent (load-library "sqlformat"))
 
 ;; Useful Functions
 ;; "C-u M-x what-cursor-position" ("C-u C-x =") find out everything about the state under the cursor (face name, font, etc)
+
+
+(setq-default bidi-display-reordering nil)
+(defun bidi-reordering-toggle ()
+  "Toggle bidirectional display reordering"
+  (interactive)
+  (setq bidi-display-reordering (not bidi-display-reordering))
+  (message "bidi-display-reordering is %s" bidi-display-reordering)
+  )
+
+(setq-default bidi-paragraph-direction 'left-to-right)
+(defun bidi-direction-toggle ()
+  "Switch the explitict direction of text for the current buffer"
+  (interactive)
+  (setq bidi-display-reordering t)
+  (if (equal bidi-paragraph-direction 'right-to-left)
+      (setq bidi-paragraph-direction 'left-to-right)
+    (setq  bidi-paragraph-direction 'right-to-left))
+  (message "%s" bidi-paragraph-direction)
+  )
