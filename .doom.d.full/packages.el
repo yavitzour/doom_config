@@ -159,3 +159,5 @@
                  :repo "bnbeckwith/writegood-mode"
                  )
   )
+
+(package! denote)

@@ -101,47 +101,6 @@ Lists the object's non-method fields and their respective current values."
 
 ;; (add-hook! 'python-mode-hook 'pyvenv-autoload)
 
-;; (defun set-lsp-python-ms-extra-paths ()
-;;   (interactive)
-;;   (setq lsp-python-ms-extra-paths ["."])
-;;   (if (buffer-file-name)
-;;       (aset lsp-python-ms-extra-paths 0
-;;             (file-name-directory (buffer-file-name)))
-;;     (aset lsp-python-ms-extra-paths 0
-;;           default-directory))
-;;   )
-
-(defun set-lsp-python-ms-extra-paths ()
-  (interactive)
-  (setq lsp-python-ms-extra-paths
-        (vector
-         (if (buffer-file-name)
-             (file-name-directory (buffer-file-name))
-           default-directory)
-         )
-        )
-  )
-
-(add-hook! 'python-mode-hook 'set-lsp-python-ms-extra-paths)
-
-(defun toggle-lsp-python-ms-extra-paths ()
-  (interactive)
-  (if (length> lsp-python-ms-extra-paths 0)
-      (progn
-        (setq lsp-python-ms-extra-paths [])
-        (lsp-restart-workspace)
-        (message "%s" lsp-python-ms-extra-paths)
-        )
-    (progn
-      (set-lsp-python-ms-extra-paths)
-      (lsp-restart-workspace)
-      (message "%s" lsp-python-ms-extra-paths)
-      )
-    )
-  )
-
-(map! :map python-mode-map
-      "C-c t e" #'toggle-lsp-python-ms-extra-paths)
 
 (use-package! importmagic
   :config
@@ -151,6 +110,8 @@ Lists the object's non-method fields and their respective current values."
 ;;       "C-c C-f" #'importmagic-fix-symbol-at-point)
 
 (setq dap-python-debugger 'debugpy)
+
+(load! "+dap")
 
 ;; virtualenv
 ;; (defadvice! +python-poetry-open-repl-a (orig-fn &rest args)

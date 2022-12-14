@@ -53,7 +53,12 @@
                  "* %?\n %i\n %a"))
 
   (setq org-refile-targets
-        '(("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")))
+        '(
+          ;; ("projects.org" :regexp . "\\(?:\\(?:Note\\|Task\\)s\\)")
+          ;; ("projects.org" :maxlevel . 1)
+          ("projects.org" :maxlevel . 2)
+          )
+        )
 
   (setq org-refile-use-outline-path 'file)
   (setq org-outline-path-complete-in-steps nil)
@@ -76,3 +81,6 @@
   ;; # -*- buffer-auto-save-file-name: nil; -*-
   )
 
+(use-package! org-journal
+  :config
+  (setq org-journal-file-type 'yearly))

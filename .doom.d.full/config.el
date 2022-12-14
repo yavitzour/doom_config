@@ -366,6 +366,10 @@
 (setq org-directory "~/projects/org/") ; let's put files here
 (when (display-graphic-p) (load! "+org"))
 
+;; Denote
+(load! "+denote")
+
+
 ;; ejc-sql
 ;; (use-package! ejc-sql
 ;;   :config
