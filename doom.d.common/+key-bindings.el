@@ -6,8 +6,8 @@
  ;; "C-x 4 F" #'ffap-other-window
  "C-x F" #'projectile-find-file-dwim
  "C-x 4 F" #'projectile-find-file-dwim-other-window
- "<f2>" #'next-error
- "S-<f2>" #'previous-error
+ "<f2>" #'next-error-or-flycheck-next-error
+ "S-<f2>" #'previous-error-or-flycheck-previous-error
  "C-w" #'obar/kill-region-or-backward-word
  "C-c C-b" #'copy-buffer-file-name-as-kill
  "M-c" #'ct/capitalize-word-at-point

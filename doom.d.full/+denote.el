@@ -66,6 +66,7 @@
   (:map global-map
         ("C-c d j" . my-denote-journal) ; our custom command
         ("C-c d n" . denote)
+        ("C-c d o" . denote-open-or-create)
         ("C-c d N" . denote-type)
         ("C-c d d" . denote-date)
         ("C-c d s" . denote-subdirectory)

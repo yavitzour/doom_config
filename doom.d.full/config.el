@@ -42,7 +42,7 @@
 ;;   (text-mode . mixed-pitch-mode))
 ;; (setq mixed-pitch-set-height t)
 
-(defvar my-doom-common-dir "~/.doom.d.common")
+(defvar my-doom-common-dir "~/doom_config/doom.d.common")
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -116,7 +116,7 @@
        ;; modus-themes-intense-hl-line t
        modus-themes-syntax 'alt-syntax
        )
-  (modus-themes-load-themes)
+  ;;(modus-themes-load-themes)            
   ;; :bind
   ;; (("<f5>" . modus-themes-toggle))
   )
@@ -390,6 +390,11 @@
 ;; show parentheses matches outside the visible window
 (load! "+show-paren")
 
+(after! dired
+  (setq dired-listing-switches "-ahlGg -v --group-directories-first")
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  )
+
 (use-package! peep-dired
   :after dired
   :bind (:map dired-mode-map
@@ -400,7 +405,6 @@
   :bind (:map dired-mode-map
          ("TAB" . dired-subtree-toggle)))
 
-(setq dired-kill-when-opening-new-dired-buffer t)
 
 (use-package! svg-tag-mode
   :hook ((prog-mode . svg-tag-mode)
@@ -490,4 +494,12 @@
       (setq bidi-paragraph-direction 'left-to-right)
     (setq  bidi-paragraph-direction 'right-to-left))
   (message "%s" bidi-paragraph-direction)
+  )
+
+(use-package! matlab-mode
+  :defer t
+  :init
+  (setq auto-mode-alist (cons '("\\.m\\'" . matlab-mode) auto-mode-alist))
+  :config
+  (setq matlab-indent-function-body nil)
   )

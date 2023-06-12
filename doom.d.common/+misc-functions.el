@@ -160,6 +160,7 @@ URL: https://christiantietze.de/posts/2021/03/change-case-of-word-at-point/"
 
 
 (defun ediff-compare-region-clipboard (begin end)
+  "Compare current region (BEGIN END) with last saved text in clipboard."
   (interactive "r")
   (save-excursion
     (let ((selected-region (buffer-substring begin end))
@@ -219,6 +220,17 @@ Close BUFFER if the compilation is MSG has finished."
   (interactive)
   (forward-line -1))
 
+(defun next-error-or-flycheck-next-error ()
+  (interactive)
+  (if (bound-and-true-p flycheck-mode)
+      (call-interactively 'flycheck-next-error)
+    (call-interactively 'next-error)))
+
+(defun previous-error-or-flycheck-previous-error ()
+  (interactive)
+  (if (bound-and-true-p flycheck-mode)
+      (call-interactively 'flycheck-previous-error)
+    (call-interactively 'previous-error)))
 
 (provide '+misc-functions)
 ;;; +misc-functions.el ends here

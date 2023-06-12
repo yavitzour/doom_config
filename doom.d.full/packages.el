@@ -161,3 +161,5 @@
   )
 
 (package! denote)
+
+(package! matlab-mode)

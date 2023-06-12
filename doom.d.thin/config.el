@@ -76,7 +76,7 @@
 ;; they are implemented.
 
 ;; Directory of emacs functions and code shared with doom-full
-(defvar my-doom-common-dir "~/.doom.d.common")
+(defvar my-doom-common-dir "~/doom_config/doom.d.common")
 
 ;; Do not confirm on quit
 (setq confirm-kill-emacs nil)
