@@ -163,3 +163,5 @@
 (package! denote)
 
 (package! matlab-mode)
+
+(package! gptel)

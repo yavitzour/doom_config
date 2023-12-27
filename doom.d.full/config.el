@@ -88,7 +88,8 @@
     (heaven-and-hell-clean-load-themes my-current-theme)
     )
 
-  :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
+  :bind (:map global-map
+         ("C-c <f6>" . heaven-and-hell-load-default-theme)
          ("<f6>" . heaven-and-hell-toggle-theme)
          ("<f7>" . my/load-next-theme)
          )
@@ -110,21 +111,22 @@
        ;; modus-themes-section-headings t
        modus-themes-scale-headings t
        modus-themes-mode-line '3d
-       ;; modus-themes-completions 'opinionated
+       modus-themes-completions 'opinionated
        modus-themes-bold-constructs t
        ;; modus-themes-slanted-constructs t
        ;; modus-themes-intense-hl-line t
        modus-themes-syntax 'alt-syntax
+       ;; modus-themes-syntax 'faint
        )
-  ;;(modus-themes-load-themes)            
+  ;; (modus-themes-load-themes)
   ;; :bind
   ;; (("<f5>" . modus-themes-toggle))
   )
 
 (use-package! doom-modeline
   :init
-  (setq doom-modeline-height 10
-        doom-modeline-major-mode-icon t)
+  (setq doom-modeline-height 10)
+  (if (display-graphic-p) (setq doom-modeline-major-mode-icon t))
 
   :custom-face
   (mode-line ((t (:height 0.97))))
@@ -225,8 +227,16 @@
   ;; (setq lsp-enable-snippet nil)
   ;; (setq read-process-output-max (* 1024 1024)) ;; 1MB
   ;; (setq lsp-idle-delay 0.5)
-  )
+  (setq lsp-file-watch-ignored-directories
+         (append lsp-file-watch-ignored-directories
+                 '("[/\\\\]venv\\'"
+                   "[/\\\\]venv[^/\\\\]*\\'"
+                   "[/\\\\]blade_env[^/\\\\]*\\'"
+                )))
 
+  ;; pyright
+  (setq lsp-pyright-typechecking-mode "off")
+  )
 
 (load! "common_config" my-doom-common-dir)
 
@@ -335,8 +345,8 @@
   :init
   (dogears-mode t)
   (map!
-   "C-x -" #'dogears-back
-   "C-x _" #'dogears-forward
+   "C-x _" #'dogears-back
+   "C-x -" #'dogears-forward
    "M-g d" #'dogears-go
    "M-g M-b" #'dogears-back
    "M-g M-f" #'dogears-forward
@@ -469,8 +479,10 @@
   :config
   (setq sqlformat-command 'pgformatter)
   (setq sqlformat-args '("-s2" "-g"))
-  (add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
-  (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat))
+  ;; (add-hook 'sql-mode-hook 'sqlformat-on-save-mode)
+  ;; (define-key sql-mode-map (kbd "C-c C-f") 'sqlformat)
+  :bind (:map sql-mode-map
+              ("C-c C-d" . sqlformat)))
 (after! sql-indent (load-library "sqlformat"))
 
 ;; Useful Functions
@@ -503,3 +515,9 @@
   :config
   (setq matlab-indent-function-body nil)
   )
+
+
+;; gtpel
+(use-package! gptel
+  :config
+  (setq! gptel-api-key "your key"))
